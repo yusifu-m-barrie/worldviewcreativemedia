@@ -1,0 +1,26 @@
+import { ensureEducationCategory } from "@/actions/category.actions";
+import { isDbConfigured, tryConnectDB } from "@/lib/db";
+import { Category } from "@/models/Category";
+import { demoCategories } from "@/lib/demo-data";
+import { NewArticleForm } from "./new-article-form";
+
+async function getCategories() {
+  if (!isDbConfigured()) return demoCategories.map((c) => ({ name: c.name, slug: c.slug }));
+  if (!(await tryConnectDB())) {
+    return demoCategories.map((c) => ({ name: c.name, slug: c.slug }));
+  }
+  await ensureEducationCategory();
+  const cats = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
+  return cats.map((c) => ({ name: c.name, slug: c.slug }));
+}
+
+export default async function NewArticlePage() {
+  const categories = await getCategories();
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <h1 className="text-2xl font-bold text-foreground">New Article</h1>
+      <NewArticleForm categories={categories} />
+    </div>
+  );
+}

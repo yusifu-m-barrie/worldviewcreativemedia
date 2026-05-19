@@ -1,0 +1,52 @@
+import { siteConfig } from "@/config/site";
+import type { LivePlatform } from "@/lib/live-embed";
+
+export const SETTINGS_KEY = "site";
+
+export interface SiteSettingsValue {
+  siteName: string;
+  tagline: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  social: {
+    facebook: string;
+    youtube: string;
+    instagram: string;
+    twitter: string;
+    whatsapp: string;
+  };
+  live: {
+    defaultPlatform: LivePlatform;
+    facebookPageUrl: string;
+    youtubeChannelUrl: string;
+    /** Shown when no embed is active */
+    offlineMessage: string;
+  };
+  analytics?: {
+    googleAnalyticsId?: string;
+  };
+}
+
+export const defaultSiteSettings: SiteSettingsValue = {
+  siteName: siteConfig.name,
+  tagline: siteConfig.description,
+  contactEmail: siteConfig.contact.email,
+  contactPhone: siteConfig.contact.phone,
+  contactAddress: siteConfig.contact.address,
+  social: {
+    facebook: siteConfig.social.facebook,
+    youtube: siteConfig.social.youtube,
+    instagram: siteConfig.social.instagram,
+    twitter: siteConfig.social.twitter,
+    whatsapp: siteConfig.social.whatsapp,
+  },
+  live: {
+    defaultPlatform: "facebook",
+    facebookPageUrl: siteConfig.social.facebook,
+    youtubeChannelUrl: siteConfig.social.youtube,
+    offlineMessage:
+      "We are currently offline. Follow us on Facebook for the next live broadcast.",
+  },
+  analytics: {},
+};
