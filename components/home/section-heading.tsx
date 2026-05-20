@@ -13,7 +13,7 @@ export function SectionHeading({ title, subtitle, href, linkLabel = "View all" }
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h2 className="text-2xl font-bold text-foreground lg:text-3xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-foreground/65">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-sm text-foreground-muted">{subtitle}</p>}
       </div>
       {href && (
         <Link

@@ -31,6 +31,7 @@ export default async function LiveTVPage() {
           stream={current}
           facebookPageUrl={settings.live.facebookPageUrl}
           youtubeChannelUrl={settings.live.youtubeChannelUrl}
+          tiktokProfileUrl={settings.live.tiktokProfileUrl}
           offlineMessage={settings.live.offlineMessage}
         />
       </section>

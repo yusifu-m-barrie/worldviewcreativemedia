@@ -24,7 +24,7 @@ export default async function NewsPage() {
         ))}
       </div>
       {totalPages > 1 && (
-        <p className="mt-8 text-center text-sm text-foreground/60">
+        <p className="mt-8 text-center text-sm text-foreground-muted">
           Page {page} of {totalPages}
         </p>
       )}

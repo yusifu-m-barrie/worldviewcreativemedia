@@ -6,8 +6,10 @@ import { getAllVideosForAdmin } from "@/services/video.service";
 import { formatDate } from "@/lib/utils";
 import {
   adminMuted,
+  adminPageHeader,
   adminPageTitle,
   adminSubtitle,
+  adminTable,
   adminTableHead,
   adminTableRow,
   adminTableWrap,
@@ -19,12 +21,12 @@ export default async function AdminVideosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className={adminPageHeader}>
+        <div className="min-w-0">
           <h1 className={adminPageTitle}>Videos</h1>
           <p className={adminSubtitle}>Upload via Cloudinary or embed YouTube/Facebook links</p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full shrink-0 sm:w-auto">
           <Link href="/admin/videos/new">
             <Plus className="mr-2 h-4 w-4" />
             New Video
@@ -33,7 +35,7 @@ export default async function AdminVideosPage() {
       </div>
 
       <div className={adminTableWrap}>
-        <table className="w-full text-left text-sm text-foreground">
+        <table className={adminTable}>
           <thead className={adminTableHead}>
             <tr>
               <th className="px-4 py-3 font-semibold">Title</th>
@@ -48,14 +50,14 @@ export default async function AdminVideosPage() {
               <tr key={String(v._id)} className="border-b border-border last:border-0">
                 <td className="px-4 py-3">
                   <p className="font-medium">{v.title}</p>
-                  <p className="text-xs text-foreground/60">{v.slug}</p>
+                  <p className="text-xs text-foreground-muted">{v.slug}</p>
                 </td>
                 <td className="px-4 py-3">
                   <Badge variant={v.status === "published" ? "default" : "secondary"}>{v.status}</Badge>
                   {v.isFeatured && <Badge variant="orange" className="ml-1">Featured</Badge>}
                 </td>
-                <td className="px-4 py-3 text-foreground/60">{v.viewCount?.toLocaleString() ?? 0}</td>
-                <td className="px-4 py-3 text-foreground/60">
+                <td className="px-4 py-3 text-foreground-muted">{v.viewCount?.toLocaleString() ?? 0}</td>
+                <td className="px-4 py-3 text-foreground-muted">
                   {v.publishedAt ? formatDate(v.publishedAt) : "—"}
                 </td>
                 <td className="px-4 py-3">
@@ -73,7 +75,7 @@ export default async function AdminVideosPage() {
           </tbody>
         </table>
         {!videos.length && (
-          <p className="p-8 text-center text-foreground/60">No videos yet. Upload your first video.</p>
+          <p className="p-8 text-center text-foreground-muted">No videos yet. Upload your first video.</p>
         )}
       </div>
     </div>

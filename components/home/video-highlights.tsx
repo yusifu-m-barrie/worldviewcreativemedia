@@ -39,10 +39,10 @@ export function VideoHighlights({ videos }: VideoHighlightsProps) {
             )}
           </div>
           <div className="p-4">
-            <h3 className="line-clamp-2 font-bold text-gray-900 group-hover:text-[#2E2A86] dark:text-gray-100">
+            <h3 className="line-clamp-2 font-bold text-foreground group-hover:text-[#2E2A86] dark:text-gray-100">
               {video.title}
             </h3>
-            <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
+            <div className="mt-2 flex items-center gap-3 text-xs text-foreground-muted">
               {video.viewCount != null && (
                 <span className="flex items-center gap-1">
                   <Eye className="h-3 w-3" />

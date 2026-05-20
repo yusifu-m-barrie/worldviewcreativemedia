@@ -22,7 +22,7 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+    <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-6 sm:space-y-8">
       <section className={`space-y-4 ${adminPanel}`}>
         <h2 className={adminSectionTitle}>General</h2>
         <div>
@@ -69,6 +69,10 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
           <Input id="socialYoutube" name="socialYoutube" defaultValue={settings.social.youtube} required />
         </div>
         <div>
+          <label htmlFor="socialTiktok" className={adminLabel}>TikTok Profile URL</label>
+          <Input id="socialTiktok" name="socialTiktok" defaultValue={settings.social.tiktok} placeholder="https://www.tiktok.com/@username" />
+        </div>
+        <div>
           <label htmlFor="socialInstagram" className={adminLabel}>Instagram</label>
           <Input id="socialInstagram" name="socialInstagram" defaultValue={settings.social.instagram} />
         </div>
@@ -94,6 +98,7 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
           >
             <option value="facebook">Facebook Live (recommended)</option>
             <option value="youtube">YouTube Live</option>
+            <option value="tiktok">TikTok Live</option>
             <option value="custom">Custom</option>
           </select>
         </div>
@@ -104,6 +109,10 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
         <div>
           <label htmlFor="liveYoutubeChannelUrl" className={adminLabel}>YouTube Channel URL</label>
           <Input id="liveYoutubeChannelUrl" name="liveYoutubeChannelUrl" defaultValue={settings.live.youtubeChannelUrl} required />
+        </div>
+        <div>
+          <label htmlFor="liveTiktokProfileUrl" className={adminLabel}>TikTok Profile URL</label>
+          <Input id="liveTiktokProfileUrl" name="liveTiktokProfileUrl" defaultValue={settings.live.tiktokProfileUrl} placeholder="https://www.tiktok.com/@username" />
         </div>
         <div>
           <label htmlFor="liveOfflineMessage" className={adminLabel}>Offline message</label>
@@ -130,7 +139,7 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
             defaultValue={settings.analytics?.googleAnalyticsId || ""}
             placeholder="G-XXXXXXXXXX"
           />
-          <p className="mt-1 text-xs text-foreground/60">
+          <p className="mt-1 text-xs text-foreground-muted">
             From Google Analytics → Admin → Data streams → your web stream → Measurement ID.
             Starts with <code className="rounded bg-muted px-1">G-</code>. Leave empty to disable.
             You can also set <code className="rounded bg-muted px-1">NEXT_PUBLIC_GA_MEASUREMENT_ID</code> on

@@ -18,6 +18,7 @@ export async function LiveTVSection({ stream }: LiveTVSectionProps) {
           stream={stream}
           facebookPageUrl={settings.live.facebookPageUrl}
           youtubeChannelUrl={settings.live.youtubeChannelUrl}
+          tiktokProfileUrl={settings.live.tiktokProfileUrl}
           offlineMessage={settings.live.offlineMessage}
           compact
         />
@@ -27,7 +28,7 @@ export async function LiveTVSection({ stream }: LiveTVSectionProps) {
             {stream?.title || "WorldView Creative Media Live"}
           </h3>
           <p className="mt-3 text-white/70">
-            Watch breaking news and special coverage live on our website — streaming from Facebook and YouTube.
+            Watch breaking news and special coverage live on our website — streaming from Facebook, YouTube, and TikTok.
           </p>
           <Button asChild variant="orange" className="mt-6 w-fit">
             <Link href="/live-tv">Full Live TV Page</Link>

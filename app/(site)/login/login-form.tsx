@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
 function LoginFormInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
   const [email, setEmail] = useState("");
@@ -26,16 +25,18 @@ function LoginFormInner() {
       password,
       redirect: false,
     });
-    setLoading(false);
 
-    if (result?.error) {
+    if (result?.error || result?.ok === false) {
+      setLoading(false);
       toast.error("Invalid email or password");
       return;
     }
 
     toast.success("Signed in successfully");
-    router.push(callbackUrl);
-    router.refresh();
+
+    // Full page load so the session cookie is sent before /admin is checked
+    const target = callbackUrl.startsWith("/") ? callbackUrl : "/admin";
+    window.location.href = target;
   }
 
   return (

@@ -10,7 +10,7 @@ const badgeVariants = cva(
         orange: "bg-[#E8872A] text-white",
         live: "bg-red-600 text-white animate-pulse",
         outline: "border border-[#2E2A86] text-[#2E2A86]",
-        secondary: "bg-gray-100 text-gray-700",
+        secondary: "bg-muted text-foreground-muted",
       },
     },
     defaultVariants: { variant: "default" },

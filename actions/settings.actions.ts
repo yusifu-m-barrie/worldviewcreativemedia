@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { isDbConfigured } from "@/lib/db";
-import { ADMIN_ROLES } from "@/config/roles";
+import { canAccessPermission } from "@/lib/permissions";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 import { saveSiteSettings } from "@/services/settings.service";
 import type { SiteSettingsValue } from "@/lib/settings-defaults";
 import type { Role } from "@/config/roles";
@@ -17,12 +18,14 @@ const settingsSchema = z.object({
   contactAddress: z.string().optional(),
   socialFacebook: z.string().url(),
   socialYoutube: z.string().url(),
+  socialTiktok: z.union([z.string().url(), z.literal("")]).optional(),
   socialInstagram: z.union([z.string().url(), z.literal("")]).optional(),
   socialTwitter: z.union([z.string().url(), z.literal("")]).optional(),
   socialWhatsapp: z.string().optional(),
-  liveDefaultPlatform: z.enum(["facebook", "youtube", "custom"]),
+  liveDefaultPlatform: z.enum(["facebook", "youtube", "tiktok", "custom"]),
   liveFacebookPageUrl: z.string().url(),
   liveYoutubeChannelUrl: z.string().url(),
+  liveTiktokProfileUrl: z.union([z.string().url(), z.literal("")]).optional(),
   liveOfflineMessage: z.string().min(5),
   googleAnalyticsId: z
     .string()
@@ -35,8 +38,9 @@ const settingsSchema = z.object({
 export async function updateSiteSettings(formData: FormData) {
   const session = await auth();
   const role = session?.user?.role as Role | undefined;
-  if (!session?.user?.id || !role || !ADMIN_ROLES.includes(role)) {
-    return { error: "Unauthorized" };
+  const perms = session?.user?.permissions as AdminPermissions | undefined;
+  if (!session?.user?.id || !canAccessPermission(role, perms, "settings")) {
+    return { error: "You do not have permission to change site settings." };
   }
   if (!isDbConfigured()) {
     return { error: "Database not configured" };
@@ -50,12 +54,14 @@ export async function updateSiteSettings(formData: FormData) {
     contactAddress: formData.get("contactAddress") || "",
     socialFacebook: formData.get("socialFacebook"),
     socialYoutube: formData.get("socialYoutube"),
+    socialTiktok: formData.get("socialTiktok") || "",
     socialInstagram: formData.get("socialInstagram") || "",
     socialTwitter: formData.get("socialTwitter") || "",
     socialWhatsapp: formData.get("socialWhatsapp") || "",
     liveDefaultPlatform: formData.get("liveDefaultPlatform"),
     liveFacebookPageUrl: formData.get("liveFacebookPageUrl"),
     liveYoutubeChannelUrl: formData.get("liveYoutubeChannelUrl"),
+    liveTiktokProfileUrl: formData.get("liveTiktokProfileUrl") || "",
     liveOfflineMessage: formData.get("liveOfflineMessage"),
     googleAnalyticsId: formData.get("googleAnalyticsId") || undefined,
   });
@@ -74,6 +80,7 @@ export async function updateSiteSettings(formData: FormData) {
     social: {
       facebook: d.socialFacebook,
       youtube: d.socialYoutube,
+      tiktok: d.socialTiktok || "",
       instagram: d.socialInstagram || "",
       twitter: d.socialTwitter || "",
       whatsapp: d.socialWhatsapp || "",
@@ -82,6 +89,7 @@ export async function updateSiteSettings(formData: FormData) {
       defaultPlatform: d.liveDefaultPlatform,
       facebookPageUrl: d.liveFacebookPageUrl,
       youtubeChannelUrl: d.liveYoutubeChannelUrl,
+      tiktokProfileUrl: d.liveTiktokProfileUrl || "",
       offlineMessage: d.liveOfflineMessage,
     },
     analytics: {

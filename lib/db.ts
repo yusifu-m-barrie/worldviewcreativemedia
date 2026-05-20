@@ -8,7 +8,7 @@ function getMongoUri(): string | undefined {
   return process.env.MONGODB_URI_STANDARD || process.env.MONGODB_URI;
 }
 
-const CONNECT_TIMEOUT_MS = 8_000;
+const CONNECT_TIMEOUT_MS = 5_000;
 const FAILURE_COOLDOWN_MS = 60_000;
 
 interface MongooseCache {

@@ -3,12 +3,15 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { ROLES, type Role } from "@/config/roles";
+import { resolvePermissions, type AdminPermissions } from "@/lib/admin-permissions";
+import { type Role } from "@/config/roles";
 import type { SessionUser } from "@/types";
+import { authConfig } from "@/lib/auth.config";
 
 declare module "next-auth" {
   interface User {
     role: Role;
+    permissions?: AdminPermissions;
   }
   interface Session {
     user: SessionUser;
@@ -19,10 +22,12 @@ declare module "@auth/core/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    permissions?: AdminPermissions;
   }
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: "credentials",
@@ -54,32 +59,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
+          permissions: resolvePermissions(user.role, user.permissions ?? undefined),
           image: user.image,
         };
       },
     }),
   ],
-  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id!;
-        token.role = (user.role as Role) || ROLES.USER;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = (token.role as Role) || ROLES.USER;
-      }
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true,
 });

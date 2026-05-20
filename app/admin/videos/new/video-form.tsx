@@ -6,16 +6,12 @@ import { MediaUpload } from "@/components/admin/media-upload";
 import { VideoUpload } from "@/components/admin/video-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { adminField, adminLabel, adminTextarea } from "@/lib/admin-ui";
 import { toast } from "sonner";
 
 interface VideoFormProps {
   categories: { name: string; slug: string }[];
 }
-
-const fieldClass =
-  "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-950 dark:text-white";
-
-const labelClass = "mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200";
 
 export function VideoForm({ categories }: VideoFormProps) {
   const [thumbnail, setThumbnail] = useState("");
@@ -42,24 +38,24 @@ export function VideoForm({ categories }: VideoFormProps) {
   return (
     <form id="video-form" className="max-w-2xl space-y-6" onSubmit={(e) => e.preventDefault()}>
       <div>
-        <label htmlFor="title" className={labelClass}>Title</label>
+        <label htmlFor="title" className={adminLabel}>Title</label>
         <Input id="title" name="title" required placeholder="Video title" />
       </div>
 
       <div>
-        <label htmlFor="description" className={labelClass}>Description</label>
+        <label htmlFor="description" className={adminLabel}>Description</label>
         <textarea
           id="description"
           name="description"
           rows={3}
-          className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+          className={adminTextarea}
           placeholder="Short description"
         />
       </div>
 
       <div>
-        <label htmlFor="categorySlug" className={labelClass}>Category</label>
-        <select id="categorySlug" name="categorySlug" className={fieldClass}>
+        <label htmlFor="categorySlug" className={adminLabel}>Category</label>
+        <select id="categorySlug" name="categorySlug" className={adminField}>
           <option value="">— None —</option>
           {categories.map((c) => (
             <option key={c.slug} value={c.slug}>{c.name}</option>
@@ -95,7 +91,7 @@ export function VideoForm({ categories }: VideoFormProps) {
       />
 
       <div>
-        <label htmlFor="embedUrl" className={labelClass}>
+        <label htmlFor="embedUrl" className={adminLabel}>
           Or embed URL (YouTube / Facebook)
         </label>
         <Input
@@ -110,7 +106,7 @@ export function VideoForm({ categories }: VideoFormProps) {
 
       <input type="hidden" name="duration" value={duration ?? ""} />
 
-      <label className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+      <label className="flex items-center gap-2 text-sm text-foreground dark:text-gray-200">
         <input type="checkbox" name="isFeatured" className="rounded" />
         Feature on homepage
       </label>

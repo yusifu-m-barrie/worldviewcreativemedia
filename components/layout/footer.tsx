@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Share2, Globe, Video, Camera } from "lucide-react";
+import { Share2, Globe, Video, Camera, Music2 } from "lucide-react";
 import { SiteLogo } from "@/components/site-logo";
 import { siteConfig } from "@/config/site";
 
@@ -64,6 +64,11 @@ export function Footer() {
               <a href={siteConfig.social.youtube} aria-label="YouTube" className="text-white/70 hover:text-[#E8872A]">
                 <Video className="h-5 w-5" />
               </a>
+              {siteConfig.social.tiktok ? (
+                <a href={siteConfig.social.tiktok} aria-label="TikTok" className="text-white/70 hover:text-[#E8872A]">
+                  <Music2 className="h-5 w-5" />
+                </a>
+              ) : null}
               <a href={siteConfig.social.instagram} aria-label="Instagram" className="text-white/70 hover:text-[#E8872A]">
                 <Camera className="h-5 w-5" />
               </a>

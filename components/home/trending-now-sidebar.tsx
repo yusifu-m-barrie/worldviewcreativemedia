@@ -50,7 +50,7 @@ export function TrendingNowSidebar({ articles }: TrendingNowSidebarProps) {
                       {article.title}
                     </p>
                     {article.publishedAt && (
-                      <p className="mt-1 text-[11px] text-foreground/55">
+                      <p className="mt-1 text-[11px] text-foreground-muted">
                         {formatRelativeTime(article.publishedAt)}
                       </p>
                     )}
@@ -60,7 +60,7 @@ export function TrendingNowSidebar({ articles }: TrendingNowSidebarProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-foreground/60">
+          <p className="text-sm text-foreground-muted">
             No featured stories yet. Mark articles as featured in the CMS to show them here.
           </p>
         )}

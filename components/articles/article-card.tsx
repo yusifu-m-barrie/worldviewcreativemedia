@@ -91,7 +91,7 @@ export function ArticleCard({ article, variant = "default", priority = false }: 
         <h3 className="mt-1 line-clamp-2 font-bold text-foreground group-hover:text-[#2E2A86] dark:group-hover:text-[#E8872A]">
           {article.title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-foreground/65">{truncate(article.excerpt, 100)}</p>
+        <p className="mt-2 line-clamp-2 text-sm text-foreground-muted">{truncate(article.excerpt, 100)}</p>
         <ArticleMeta article={article} />
       </div>
     </Link>
@@ -107,7 +107,7 @@ function ArticleMeta({
   light?: boolean;
   compact?: boolean;
 }) {
-  const color = light ? "text-white/70" : "text-foreground/55";
+  const color = light ? "text-white/70" : "text-foreground-muted";
   return (
     <div className={`mt-2 flex flex-wrap items-center gap-3 text-xs ${color}`}>
       {article.publishedAt && (

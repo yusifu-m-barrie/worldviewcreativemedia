@@ -30,7 +30,7 @@ function FilterPill({
         "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
         active
           ? "bg-[#2E2A86] text-white shadow-sm"
-          : "bg-muted text-foreground/80 hover:bg-muted/80"
+          : "bg-muted text-foreground-muted hover:bg-muted/80"
       )}
     >
       {children}
@@ -83,7 +83,7 @@ export function LatestStoriesSection({ articles, categories }: LatestStoriesSect
           ))}
         </div>
       ) : (
-        <p className="rounded-xl border border-dashed border-border py-12 text-center text-foreground/60">
+        <p className="rounded-xl border border-dashed border-border py-12 text-center text-foreground-muted">
           No stories in this category.{" "}
           <button
             type="button"

@@ -143,3 +143,45 @@ export async function incrementArticleViews(id: string) {
   if (!isDbConfigured() || !(await tryConnectDB())) return;
   await Article.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
 }
+
+export interface ArticleAdminEdit {
+  id: string;
+  authorId: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  categorySlug: string;
+  featuredImage: string;
+  galleryImages: string[];
+  isBreaking: boolean;
+  isFeatured: boolean;
+  status: "draft" | "published" | "scheduled" | "archived";
+}
+
+export async function getArticleForAdminEdit(id: string): Promise<ArticleAdminEdit | null> {
+  if (!isDbConfigured() || !(await tryConnectDB())) return null;
+
+  const article = await Article.findById(id).populate("category", "slug").lean();
+  if (!article) return null;
+
+  const category = article.category as { slug?: string } | null;
+  const status = article.status as ArticleAdminEdit["status"];
+  const editableStatus: ArticleAdminEdit["status"] =
+    status === "published" || status === "draft" ? status : "draft";
+
+  return {
+    id: String(article._id),
+    authorId: String(article.author),
+    slug: article.slug,
+    title: article.title,
+    excerpt: article.excerpt,
+    content: article.content,
+    categorySlug: category?.slug ?? "",
+    featuredImage: article.featuredImage ?? "",
+    galleryImages: Array.isArray(article.gallery) ? article.gallery : [],
+    isBreaking: Boolean(article.isBreaking),
+    isFeatured: Boolean(article.isFeatured),
+    status: editableStatus,
+  };
+}

@@ -36,7 +36,7 @@ export default async function CategoryPage({ params }: PageProps) {
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
       <Link
         href="/categories"
-        className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-foreground/70 hover:text-[#E8872A]"
+        className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-foreground-muted hover:text-[#E8872A]"
       >
         <ChevronLeft className="h-4 w-4" />
         All categories
@@ -51,7 +51,7 @@ export default async function CategoryPage({ params }: PageProps) {
           ))}
         </div>
       ) : (
-        <p className="rounded-xl border border-dashed border-border py-16 text-center text-foreground/60">
+        <p className="rounded-xl border border-dashed border-border py-16 text-center text-foreground-muted">
           No published stories in this category yet. Check back soon.
         </p>
       )}

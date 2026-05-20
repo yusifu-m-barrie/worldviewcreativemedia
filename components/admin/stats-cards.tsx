@@ -22,7 +22,7 @@ export function StatsCards({ stats }: { stats: StatItem[] }) {
         return (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-foreground/65">{stat.label}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-foreground-muted">{stat.label}</CardTitle>
               <Icon className="h-4 w-4 text-[#E8872A]" />
             </CardHeader>
             <CardContent>

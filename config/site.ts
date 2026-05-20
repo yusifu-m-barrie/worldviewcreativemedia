@@ -16,6 +16,7 @@ export const siteConfig = {
     facebook: "https://facebook.com/worldviewcreativemedia",
     twitter: "https://x.com/worldviewmedia",
     youtube: "https://www.youtube.com/@worldview-creative-media",
+    tiktok: "https://www.tiktok.com/@worldviewcreativemedia",
     instagram: "https://instagram.com/worldviewcreativemedia",
     whatsapp: "https://wa.me/",
   },

@@ -29,3 +29,26 @@ export const ADMIN_ROLES: Role[] = [
   ROLES.JOURNALIST,
   ROLES.MODERATOR,
 ];
+
+/** Main admin — full CMS access including About, settings, videos, team oversight */
+export const SUPER_ADMIN_ROLES: Role[] = [ROLES.SUPER_ADMIN];
+
+/** Sub-admins — create and edit their own articles only */
+export const CONTENT_ADMIN_ROLES: Role[] = [
+  ROLES.ADMIN,
+  ROLES.EDITOR,
+  ROLES.JOURNALIST,
+  ROLES.MODERATOR,
+];
+
+export function isSuperAdmin(role: Role | undefined): boolean {
+  return role === ROLES.SUPER_ADMIN;
+}
+
+export function isContentAdmin(role: Role | undefined): boolean {
+  return Boolean(role && CONTENT_ADMIN_ROLES.includes(role));
+}
+
+export function canAccessAdmin(role: Role | undefined): boolean {
+  return Boolean(role && ADMIN_ROLES.includes(role));
+}

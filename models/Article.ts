@@ -1,4 +1,5 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { registerModel } from "@/lib/register-model";
 
 export type ArticleStatus = "draft" | "published" | "scheduled" | "archived";
 
@@ -14,6 +15,9 @@ export interface IArticle {
   category: mongoose.Types.ObjectId;
   tags: mongoose.Types.ObjectId[];
   author: mongoose.Types.ObjectId;
+  /** Set when a sub-admin (or anyone) updates after first publish/create */
+  lastEditedBy?: mongoose.Types.ObjectId;
+  editCount: number;
   status: ArticleStatus;
   isBreaking: boolean;
   isFeatured: boolean;
@@ -42,6 +46,8 @@ const ArticleSchema = new Schema<IArticle>(
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    lastEditedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    editCount: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["draft", "published", "scheduled", "archived"],
@@ -66,6 +72,6 @@ ArticleSchema.index({ status: 1, publishedAt: -1 });
 ArticleSchema.index({ isBreaking: 1, publishedAt: -1 });
 ArticleSchema.index({ isFeatured: 1, publishedAt: -1 });
 ArticleSchema.index({ title: "text", excerpt: "text", content: "text" });
+ArticleSchema.index({ author: 1, updatedAt: -1 });
 
-export const Article: Model<IArticle> =
-  mongoose.models.Article ?? mongoose.model<IArticle>("Article", ArticleSchema);
+export const Article = registerModel<IArticle>("Article", ArticleSchema);

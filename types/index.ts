@@ -1,10 +1,12 @@
 import type { Role } from "@/config/roles";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 
 export interface SessionUser {
   id: string;
   name: string;
   email: string;
   role: Role;
+  permissions: AdminPermissions;
   image?: string;
 }
 
@@ -34,7 +36,7 @@ export interface VideoCard {
   publishedAt?: string;
 }
 
-export type LivePlatform = "facebook" | "youtube" | "custom";
+export type LivePlatform = "facebook" | "youtube" | "tiktok" | "custom";
 
 export interface LiveStreamCard {
   _id: string;

@@ -72,8 +72,8 @@ export default async function ArticlePage({ params }: PageProps) {
           {a.category.name}
         </Link>
       )}
-      <h1 className="mt-2 text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">{a.title}</h1>
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+      <h1 className="mt-2 text-3xl font-bold text-foreground lg:text-4xl">{a.title}</h1>
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-foreground-muted">
         {a.isBreaking && <Badge variant="live">Breaking</Badge>}
         {a.publishedAt && (
           <span className="flex items-center gap-1">
@@ -94,7 +94,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <Image src={a.featuredImage} alt={a.title} fill className="object-cover" priority sizes="(max-width: 896px) 100vw, 896px" />
         </div>
       )}
-      <div className="prose-article mt-8 text-gray-700 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: content }} />
+      <div className="prose-article mt-8 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: content }} />
       {a.gallery && a.gallery.length > 0 && <ArticleGallery images={a.gallery} title={a.title} />}
       {related.length > 0 && (
         <section className="mt-16 border-t border-gray-200 pt-10 dark:border-gray-800">

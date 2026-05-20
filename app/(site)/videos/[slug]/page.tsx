@@ -57,8 +57,8 @@ export default async function VideoPage({ params }: PageProps) {
           thumbnail={v.thumbnail}
         />
       </div>
-      <h1 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">{v.title}</h1>
-      <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
+      <h1 className="mt-6 text-3xl font-bold text-foreground">{v.title}</h1>
+      <div className="mt-3 flex flex-wrap gap-4 text-sm text-foreground-muted">
         {v.duration != null && <span>{formatDuration(v.duration)}</span>}
         {v.viewCount != null && (
           <span className="flex items-center gap-1">
@@ -69,7 +69,7 @@ export default async function VideoPage({ params }: PageProps) {
         {v.publishedAt && <span>{formatDate(v.publishedAt)}</span>}
       </div>
       {v.description && (
-        <p className="mt-6 text-gray-700 dark:text-gray-300">{v.description}</p>
+        <p className="mt-6 text-foreground-muted dark:text-gray-300">{v.description}</p>
       )}
       {!v.description && v.thumbnail && (
         <div className="relative mt-6 hidden aspect-video">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { saveLiveBroadcast, endLiveBroadcast } from "@/actions/live.actions";
 import { MediaUpload } from "@/components/admin/media-upload";
@@ -16,6 +17,7 @@ interface StreamData {
   platform: LivePlatform;
   facebookVideoUrl: string;
   youtubeEmbedUrl: string;
+  tiktokVideoUrl: string;
   customEmbedUrl: string;
   isLive: boolean;
   scheduledAt: string;
@@ -25,6 +27,37 @@ interface StreamData {
 interface LiveControlFormProps {
   stream: StreamData | null;
   defaultPlatform: LivePlatform;
+}
+
+const PLATFORMS: { id: LivePlatform; label: string }[] = [
+  { id: "facebook", label: "Facebook Live" },
+  { id: "youtube", label: "YouTube Live" },
+  { id: "tiktok", label: "TikTok Live" },
+  { id: "custom", label: "Custom embed" },
+];
+
+function publishToast(
+  result: {
+    videoPublished?: boolean;
+    videoSlug?: string;
+    publishMessage?: string;
+  } | undefined,
+  ended: boolean
+) {
+  if (!ended) return;
+  if (result?.videoPublished && result.videoSlug) {
+    toast.success("Broadcast ended — published to Videos", {
+      description: (
+        <Link href={`/videos/${result.videoSlug}`} className="underline">
+          View on site
+        </Link>
+      ),
+    });
+    return;
+  }
+  if (result?.publishMessage) {
+    toast.warning(result.publishMessage);
+  }
 }
 
 export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProps) {
@@ -45,8 +78,18 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
     setPending(true);
     const result = await saveLiveBroadcast(formData);
     setPending(false);
-    if (result?.error) toast.error(result.error);
-    else toast.success(isLive ? "You are now LIVE on the site!" : "Broadcast saved");
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    if (isLive) {
+      toast.success("You are now LIVE on the site!");
+    } else if (result?.videoPublished) {
+      publishToast(result, true);
+    } else {
+      toast.success("Broadcast saved");
+      if (result?.publishMessage) toast.info(result.publishMessage);
+    }
   }
 
   async function handleEnd() {
@@ -54,15 +97,22 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
     setPending(true);
     const result = await endLiveBroadcast(stream._id);
     setPending(false);
-    if (result?.error) toast.error(result.error);
-    else {
-      setIsLive(false);
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    setIsLive(false);
+    publishToast(result, true);
+    if (!result?.videoPublished && !result?.publishMessage) {
       toast.success("Broadcast ended");
     }
   }
 
   return (
-    <form id="live-form" className="max-w-2xl space-y-6 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+    <form
+      id="live-form"
+      className="w-full max-w-2xl space-y-6 rounded-xl border border-border bg-background p-4 sm:p-6"
+    >
       <div>
         <label htmlFor="title" className="mb-1 block text-sm font-medium">Broadcast title</label>
         <Input
@@ -88,18 +138,18 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
       <div>
         <label className="mb-2 block text-sm font-medium">Platform</label>
         <div className="flex flex-wrap gap-2">
-          {(["facebook", "youtube", "custom"] as LivePlatform[]).map((p) => (
+          {PLATFORMS.map(({ id, label }) => (
             <button
-              key={p}
+              key={id}
               type="button"
-              onClick={() => setPlatform(p)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize transition ${
-                platform === p
+              onClick={() => setPlatform(id)}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                platform === id
                   ? "bg-[#E8872A] text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
               }`}
             >
-              {p === "facebook" ? "Facebook Live" : p === "youtube" ? "YouTube Live" : "Custom embed"}
+              {label}
             </button>
           ))}
         </div>
@@ -118,7 +168,7 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
             required={isLive}
           />
           <p className="mt-1 text-xs text-gray-500">
-            Copy the link from your live video post on Facebook (while streaming or after).
+            Copy the link from your live video post on Facebook. When you end the broadcast, this link is used to publish the replay on Videos.
           </p>
         </div>
       )}
@@ -133,7 +183,29 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
             name="youtubeEmbedUrl"
             defaultValue={stream?.youtubeEmbedUrl}
             placeholder="https://www.youtube.com/embed/... or watch URL"
+            required={isLive}
           />
+          <p className="mt-1 text-xs text-gray-500">
+            Paste your YouTube live or stream URL. After you end, it is published automatically to Videos.
+          </p>
+        </div>
+      )}
+
+      {platform === "tiktok" && (
+        <div>
+          <label htmlFor="tiktokVideoUrl" className="mb-1 block text-sm font-medium">
+            TikTok live / video URL *
+          </label>
+          <Input
+            id="tiktokVideoUrl"
+            name="tiktokVideoUrl"
+            defaultValue={stream?.tiktokVideoUrl}
+            placeholder="https://www.tiktok.com/@username/live or /video/123..."
+            required={isLive}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Paste your TikTok LIVE link or the video URL after the stream ends. It will appear on Videos when you end the broadcast.
+          </p>
         </div>
       )}
 
@@ -146,6 +218,23 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
             defaultValue={stream?.customEmbedUrl}
             placeholder="https://..."
           />
+        </div>
+      )}
+
+      {!isLive && (
+        <div>
+          <label htmlFor="replayUrl" className="mb-1 block text-sm font-medium">
+            Replay URL (optional override)
+          </label>
+          <Input
+            id="replayUrl"
+            name="replayUrl"
+            defaultValue={stream?.replayUrl}
+            placeholder="https://..."
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            If set, this URL is used when publishing to Videos instead of the platform link above.
+          </p>
         </div>
       )}
 
@@ -183,12 +272,24 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
         </div>
       </label>
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="button" variant="orange" disabled={pending} onClick={handleSave}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+        <Button
+          type="button"
+          variant="orange"
+          disabled={pending}
+          className="w-full sm:w-auto"
+          onClick={handleSave}
+        >
           {isLive ? "Go Live" : "Save broadcast"}
         </Button>
         {stream?._id && stream.isLive && (
-          <Button type="button" variant="destructive" disabled={pending} onClick={handleEnd}>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={pending}
+            className="w-full sm:w-auto"
+            onClick={handleEnd}
+          >
             End broadcast
           </Button>
         )}
@@ -196,4 +297,3 @@ export function LiveControlForm({ stream, defaultPlatform }: LiveControlFormProp
     </form>
   );
 }
-

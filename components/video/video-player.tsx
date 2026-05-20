@@ -1,6 +1,6 @@
 "use client";
 
-import { facebookVideoToEmbed, youtubeToEmbed } from "@/lib/live-embed";
+import { facebookVideoToEmbed, tiktokToEmbed, youtubeToEmbed } from "@/lib/live-embed";
 import {
   getOptimizedVideoPlaybackUrl,
   getVideoThumbnailUrl,
@@ -54,6 +54,8 @@ export function VideoPlayer({
     iframeSrc = facebookVideoToEmbed(iframeSrc);
   } else if (iframeSrc.includes("youtube") || iframeSrc.includes("youtu.be")) {
     iframeSrc = youtubeToEmbed(iframeSrc);
+  } else if (iframeSrc.includes("tiktok.com") || iframeSrc.includes("vm.tiktok.com")) {
+    iframeSrc = tiktokToEmbed(iframeSrc);
   }
 
   return (

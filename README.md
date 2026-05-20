@@ -7,7 +7,7 @@ Professional online TV, news, and digital media platform for Sierra Leone and We
 - Public site: homepage, news, live TV, videos, blog, search, categories
 - Breaking news ticker, featured slider, newsletter signup
 - Dark mode via `next-themes`
-- Admin CMS: dashboard, article list, TipTap editor
+- Admin CMS: dashboard, articles, TipTap editor, About page (super admin), team activity (super admin)
 - Demo content when MongoDB is not configured (local preview)
 - SEO: metadata, sitemap, robots.txt, RSS feed, JSON-LD
 
@@ -60,6 +60,25 @@ Default credentials (override with `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env.loc
 - Password: `WorldView2026!`
 
 Sign in at `/login` → redirects to `/admin`.
+
+### Admin roles
+
+| Role | Access |
+|------|--------|
+| **super_admin** (main admin) | Full CMS + **Manage Admins** (`/admin/users`), About, Team Activity |
+| **Staff admins** (editor, journalist, etc.) | Dashboard sections you enable per user: **Articles**, **Videos**, **Live TV**, **Settings** |
+
+**Manage Admins** (main admin only): Admin → **Manage Admins** — add name, email, password, and check which areas they can use. They sign in at `/login` like you.
+
+- **Articles**: create posts; edit **only their own** articles (main admin edits all).
+- **Videos / Live TV / Settings**: full access to that section when enabled.
+
+The seed script creates the login user as **super_admin**.
+
+### About Us page
+
+- Public: **`/about`** (also linked in the header and footer).
+- Editable only by **super_admin**: **Admin → About Page**.
 
 ## Cloudinary Setup
 

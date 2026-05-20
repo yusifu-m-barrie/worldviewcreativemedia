@@ -6,7 +6,8 @@ import slugify from "slugify";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { connectDB, isDbConfigured } from "@/lib/db";
-import { ADMIN_ROLES } from "@/config/roles";
+import { canAccessPermission } from "@/lib/permissions";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 import { MAX_VIDEO_DURATION_SEC } from "@/lib/cloudinary-video";
 import { Video } from "@/models/Video";
 import { Category } from "@/models/Category";
@@ -28,8 +29,9 @@ const videoSchema = z.object({
 async function requireAdmin() {
   const session = await auth();
   const role = session?.user?.role as Role | undefined;
-  if (!session?.user?.id || !role || !ADMIN_ROLES.includes(role)) {
-    return { error: "Unauthorized" as const, session: null };
+  const perms = session?.user?.permissions as AdminPermissions | undefined;
+  if (!session?.user?.id || !canAccessPermission(role, perms, "videos")) {
+    return { error: "You do not have permission to manage videos." as const, session: null };
   }
   if (!isDbConfigured()) {
     return { error: "Database not configured" as const, session: null };

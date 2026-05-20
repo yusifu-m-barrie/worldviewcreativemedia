@@ -22,10 +22,15 @@ export async function getSiteSettings(): Promise<SiteSettingsValue> {
     social: {
       ...defaultSiteSettings.social,
       ...(stored.social || {}),
+      tiktok:
+        (stored.social as { tiktok?: string })?.tiktok ?? defaultSiteSettings.social.tiktok,
     },
     live: {
       ...defaultSiteSettings.live,
       ...(stored.live || {}),
+      tiktokProfileUrl:
+        (stored.live as { tiktokProfileUrl?: string })?.tiktokProfileUrl ??
+        defaultSiteSettings.live.tiktokProfileUrl,
     },
     analytics: {
       ...defaultSiteSettings.analytics,
@@ -39,6 +44,6 @@ export async function saveSiteSettings(value: SiteSettingsValue): Promise<void> 
   await SiteSettings.findOneAndUpdate(
     { key: SETTINGS_KEY },
     { key: SETTINGS_KEY, value },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 }

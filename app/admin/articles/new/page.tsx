@@ -2,7 +2,8 @@ import { ensureEducationCategory } from "@/actions/category.actions";
 import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { Category } from "@/models/Category";
 import { demoCategories } from "@/lib/demo-data";
-import { NewArticleForm } from "./new-article-form";
+import { ArticleForm } from "@/components/admin/article-form";
+import { adminPageTitle } from "@/lib/admin-ui";
 
 async function getCategories() {
   if (!isDbConfigured()) return demoCategories.map((c) => ({ name: c.name, slug: c.slug }));
@@ -18,9 +19,9 @@ export default async function NewArticlePage() {
   const categories = await getCategories();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">New Article</h1>
-      <NewArticleForm categories={categories} />
+    <div className="mx-auto w-full max-w-3xl space-y-6">
+      <h1 className={adminPageTitle}>New Article</h1>
+      <ArticleForm mode="create" categories={categories} />
     </div>
   );
 }

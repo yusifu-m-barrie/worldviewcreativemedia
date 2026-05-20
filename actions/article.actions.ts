@@ -2,11 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import mongoose from "mongoose";
 import slugify from "slugify";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { connectDB, isDbConfigured } from "@/lib/db";
+import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { ADMIN_ROLES } from "@/config/roles";
+import { canAccessPermission, canEditArticle } from "@/lib/permissions";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 import { Article } from "@/models/Article";
 import { Category } from "@/models/Category";
 import type { Role } from "@/config/roles";
@@ -27,8 +30,12 @@ const articleSchema = z.object({
 export async function createArticle(formData: FormData) {
   const session = await auth();
   const role = session?.user?.role as Role | undefined;
+  const perms = session?.user?.permissions as AdminPermissions | undefined;
   if (!session?.user?.id || !role || !ADMIN_ROLES.includes(role)) {
     return { error: "Unauthorized" };
+  }
+  if (!canAccessPermission(role, perms, "articles")) {
+    return { error: "You do not have permission to manage articles." };
   }
 
   if (!isDbConfigured()) {
@@ -66,7 +73,13 @@ export async function createArticle(formData: FormData) {
   }
 
   const data = parsed.data;
-  await connectDB();
+
+  if (!(await tryConnectDB())) {
+    return {
+      error:
+        "Could not connect to the database. Check MONGODB_URI or MONGODB_URI_STANDARD in .env.local.",
+    };
+  }
 
   const category = await Category.findOne({ slug: data.categorySlug });
   if (!category) {
@@ -91,6 +104,7 @@ export async function createArticle(formData: FormData) {
     isFeatured: data.isFeatured ?? false,
     region: data.region || undefined,
     publishedAt: data.status === "published" ? new Date() : undefined,
+    editCount: 0,
     tags: [],
   });
 
@@ -98,4 +112,106 @@ export async function createArticle(formData: FormData) {
   revalidatePath("/news");
   revalidatePath("/admin/articles");
   redirect(`/admin/articles?created=${article.slug}`);
+}
+
+export async function updateArticle(articleId: string, formData: FormData) {
+  const session = await auth();
+  const role = session?.user?.role as Role | undefined;
+  const perms = session?.user?.permissions as AdminPermissions | undefined;
+  if (!session?.user?.id || !role || !ADMIN_ROLES.includes(role)) {
+    return { error: "Unauthorized" };
+  }
+  if (!canAccessPermission(role, perms, "articles")) {
+    return { error: "You do not have permission to manage articles." };
+  }
+
+  if (!isDbConfigured()) {
+    return { error: "Database not configured. Set MONGODB_URI in .env.local" };
+  }
+
+  let galleryImages: string[] = [];
+  const galleryRaw = formData.get("galleryImages");
+  if (typeof galleryRaw === "string" && galleryRaw) {
+    try {
+      const parsedGallery = JSON.parse(galleryRaw) as unknown;
+      if (Array.isArray(parsedGallery)) {
+        galleryImages = parsedGallery.filter((u): u is string => typeof u === "string" && u.length > 0);
+      }
+    } catch {
+      galleryImages = [];
+    }
+  }
+
+  const parsed = articleSchema.safeParse({
+    title: formData.get("title"),
+    excerpt: formData.get("excerpt"),
+    content: formData.get("content"),
+    categorySlug: formData.get("categorySlug"),
+    featuredImage: formData.get("featuredImage") || undefined,
+    galleryImages,
+    status: formData.get("status") || "draft",
+    isBreaking: formData.get("isBreaking") === "on",
+    isFeatured: formData.get("isFeatured") === "on",
+    region: (formData.get("region") as string) || undefined,
+  });
+
+  if (!parsed.success) {
+    return { error: "Invalid form data", details: parsed.error.flatten() };
+  }
+
+  const data = parsed.data;
+
+  if (!(await tryConnectDB())) {
+    return {
+      error:
+        "Could not connect to the database. Check MONGODB_URI or MONGODB_URI_STANDARD in .env.local.",
+    };
+  }
+
+  const article = await Article.findById(articleId);
+  if (!article) {
+    return { error: "Article not found" };
+  }
+
+  if (!canEditArticle(role, perms, session.user.id, String(article.author))) {
+    return { error: "You can only edit your own articles." };
+  }
+
+  const category = await Category.findOne({ slug: data.categorySlug });
+  if (!category) {
+    return { error: "Category not found" };
+  }
+
+  const previousSlug = article.slug;
+
+  article.title = data.title;
+  article.excerpt = data.excerpt;
+  article.content = data.content;
+  article.featuredImage = data.featuredImage;
+  article.gallery = data.galleryImages ?? [];
+  article.category = category._id;
+  article.status = data.status;
+  article.isBreaking = data.isBreaking ?? false;
+  article.isFeatured = data.isFeatured ?? false;
+  article.region = data.region || undefined;
+
+  if (data.status === "published" && !article.publishedAt) {
+    article.publishedAt = new Date();
+  }
+
+  article.editCount = (article.editCount ?? 0) + 1;
+  article.lastEditedBy = new mongoose.Types.ObjectId(session.user.id);
+
+  await article.save();
+
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath(`/news/${article.slug}`);
+  if (previousSlug !== article.slug) {
+    revalidatePath(`/news/${previousSlug}`);
+  }
+  revalidatePath("/admin/articles");
+  revalidatePath(`/admin/articles/${articleId}/edit`);
+
+  redirect(`/admin/articles?updated=${article.slug}`);
 }

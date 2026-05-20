@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { ADMIN_ROLES } from "@/config/roles";
-import { AdminSidebar } from "@/components/admin/sidebar";
-import { AdminHeader } from "@/components/admin/admin-header";
+import { resolvePermissions } from "@/lib/admin-permissions";
+import { AdminShell } from "@/components/admin/admin-shell";
 import type { Role } from "@/config/roles";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -13,13 +13,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/login?callbackUrl=/admin");
   }
 
+  const permissions = resolvePermissions(
+    role,
+    session.user.permissions ?? undefined
+  );
+
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <AdminSidebar />
-      <div className="flex-1 overflow-auto bg-background">
-        <AdminHeader name={session.user.name ?? "Admin"} role={role} />
-        <main className="admin-main p-6 text-foreground">{children}</main>
-      </div>
-    </div>
+    <AdminShell name={session.user.name ?? "Admin"} role={role} permissions={permissions}>
+      {children}
+    </AdminShell>
   );
 }

@@ -2,13 +2,19 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { cloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 import { ADMIN_ROLES } from "@/config/roles";
+import { canUseMediaUpload } from "@/lib/admin-permissions";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 import type { Role } from "@/config/roles";
 
 export async function POST(req: Request) {
   const session = await auth();
   const role = session?.user?.role as Role | undefined;
+  const perms = session?.user?.permissions as AdminPermissions | undefined;
   if (!session?.user?.id || !role || !ADMIN_ROLES.includes(role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!canUseMediaUpload(role, perms)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (!isCloudinaryConfigured()) {

@@ -23,8 +23,8 @@ async function getCategories() {
 export default async function NewVideoPage() {
   const categories = await getCategories();
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#2E2A86] dark:text-white">New Video</h1>
+    <div className="w-full space-y-6">
+      <h1 className="text-xl font-bold text-foreground sm:text-2xl">New Video</h1>
       <VideoForm categories={categories} />
     </div>
   );

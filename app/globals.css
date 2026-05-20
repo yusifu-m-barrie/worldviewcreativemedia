@@ -2,16 +2,21 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  /* Strong contrast on white */
+  --foreground: #111827;
+  --foreground-muted: #374151;
+  --foreground-subtle: #4b5563;
   --primary: #2e2a86;
   --orange: #e8872a;
-  --muted: #f5f5f7;
-  --border: #e5e7eb;
+  --muted: #f4f6f9;
+  --border: #dfe4ec;
 }
 
 .dark {
   --background: #0f0f14;
   --foreground: #f3f4f6;
+  --foreground-muted: #c5cdd9;
+  --foreground-subtle: #9ca3af;
   --muted: #1a1a24;
   --border: #2d2d3a;
 }
@@ -19,6 +24,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
   --color-primary: var(--primary);
   --color-orange: var(--orange);
   --color-muted: var(--muted);
@@ -38,6 +45,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-montserrat), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Readable text in light vs dark theme */
@@ -46,12 +55,79 @@ h2,
 h3,
 h4,
 h5,
-h6,
+h6 {
+  color: inherit;
+  font-weight: 700;
+}
+
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) h5,
+html:not(.dark) h6 {
+  color: var(--foreground);
+}
+
 p,
 li,
 span,
 label {
   color: inherit;
+}
+
+/* Light mode: solid dark text (opacity utilities were too faint on white) */
+html:not(.dark) .text-black,
+html:not(.dark) .text-gray-900 {
+  color: var(--foreground) !important;
+}
+
+html:not(.dark) .text-gray-800,
+html:not(.dark) .text-gray-700 {
+  color: var(--foreground-muted) !important;
+}
+
+html:not(.dark) .text-gray-600,
+html:not(.dark) .text-gray-500 {
+  color: var(--foreground-subtle) !important;
+}
+
+html:not(.dark) .text-gray-400 {
+  color: var(--foreground-subtle) !important;
+}
+
+html:not(.dark) .text-foreground\/90,
+html:not(.dark) .text-foreground\/80,
+html:not(.dark) .text-foreground\/70,
+html:not(.dark) .text-foreground\/65,
+html:not(.dark) .text-foreground\/60,
+html:not(.dark) .text-foreground\/55 {
+  color: var(--foreground-muted) !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .text-foreground\/45 {
+  color: var(--foreground-subtle) !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .text-foreground-muted {
+  color: var(--foreground-muted) !important;
+}
+
+html:not(.dark) .text-foreground-subtle {
+  color: var(--foreground-subtle) !important;
+}
+
+html:not(.dark) main,
+html:not(.dark) .admin-main {
+  color: var(--foreground);
+}
+
+html:not(.dark) .prose-article,
+html:not(.dark) .prose-article p,
+html:not(.dark) .prose-article li {
+  color: var(--foreground-muted);
 }
 
 @layer utilities {
@@ -87,13 +163,13 @@ label {
   text-decoration: underline;
 }
 
-/* TipTap editor — readable in dark mode */
+/* TipTap editor */
 .ProseMirror {
   color: inherit;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
-  color: #9ca3af;
+  color: var(--foreground-subtle);
   float: left;
   height: 0;
   pointer-events: none;
@@ -107,15 +183,30 @@ label {
   color: #e8872a;
 }
 
-/* Admin CMS — inherit theme foreground on form controls */
+/* Admin CMS */
+.admin-main {
+  color: var(--foreground);
+}
+
 .admin-main label {
   color: var(--foreground);
+  font-weight: 500;
 }
 
 .admin-main th {
   color: var(--foreground);
+  font-weight: 600;
+  padding: 0.625rem 0.75rem;
 }
 
 .admin-main td {
   color: var(--foreground);
+  padding: 0.625rem 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .admin-main th,
+  .admin-main td {
+    padding: 0.75rem 1rem;
+  }
 }

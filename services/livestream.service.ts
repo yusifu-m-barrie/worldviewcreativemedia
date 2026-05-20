@@ -14,20 +14,24 @@ function mapStream(
     platform?: LivePlatform;
     facebookVideoUrl?: string;
     youtubeEmbedUrl?: string;
+    tiktokVideoUrl?: string;
     customEmbedUrl?: string;
     thumbnail?: string;
     scheduledAt?: Date;
     description?: string;
   },
-  facebookPageUrl?: string
+  facebookPageUrl?: string,
+  tiktokProfileUrl?: string
 ): LiveStreamCard {
   const platform = (live.platform || "facebook") as LivePlatform;
   const embed = resolveLiveEmbed({
     platform,
     facebookVideoUrl: live.facebookVideoUrl,
     youtubeEmbedUrl: live.youtubeEmbedUrl,
+    tiktokVideoUrl: live.tiktokVideoUrl,
     customEmbedUrl: live.customEmbedUrl,
     facebookPageUrl,
+    tiktokProfileUrl,
   });
 
   return {
@@ -60,7 +64,8 @@ export async function getCurrentLiveStream(): Promise<LiveStreamCard | null> {
         youtubeEmbedUrl: demo.youtubeEmbedUrl,
         thumbnail: demo.thumbnail,
       },
-      settings.live.facebookPageUrl
+      settings.live.facebookPageUrl,
+      settings.live.tiktokProfileUrl
     );
   }
 
@@ -76,12 +81,15 @@ export async function getCurrentLiveStream(): Promise<LiveStreamCard | null> {
         youtubeEmbedUrl: demo.youtubeEmbedUrl,
         thumbnail: demo.thumbnail,
       },
-      settings.live.facebookPageUrl
+      settings.live.facebookPageUrl,
+      settings.live.tiktokProfileUrl
     );
   }
 
   const live = await LiveStream.findOne({ isLive: true }).sort({ updatedAt: -1 }).lean();
-  if (live) return mapStream(live, settings.live.facebookPageUrl);
+  if (live) {
+    return mapStream(live, settings.live.facebookPageUrl, settings.live.tiktokProfileUrl);
+  }
   return null;
 }
 

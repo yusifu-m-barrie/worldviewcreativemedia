@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Radio, Share2, Play, ExternalLink } from "lucide-react";
+import { Radio, Share2, Play, ExternalLink, Music2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LiveStreamCard } from "@/types";
@@ -11,6 +11,7 @@ interface LivePlayerProps {
   stream: LiveStreamCard | null;
   facebookPageUrl?: string;
   youtubeChannelUrl?: string;
+  tiktokProfileUrl?: string;
   offlineMessage?: string;
   compact?: boolean;
 }
@@ -19,6 +20,7 @@ export function LivePlayer({
   stream,
   facebookPageUrl,
   youtubeChannelUrl,
+  tiktokProfileUrl,
   offlineMessage,
   compact = false,
 }: LivePlayerProps) {
@@ -28,6 +30,7 @@ export function LivePlayer({
         message={offlineMessage}
         facebookPageUrl={facebookPageUrl}
         youtubeChannelUrl={youtubeChannelUrl}
+        tiktokProfileUrl={tiktokProfileUrl}
       />
     );
   }
@@ -56,6 +59,7 @@ export function LivePlayer({
               watchUrl={stream.watchUrl}
               facebookPageUrl={facebookPageUrl}
               youtubeChannelUrl={youtubeChannelUrl}
+              tiktokProfileUrl={tiktokProfileUrl}
               platform={stream.platform}
             />
           </div>
@@ -84,6 +88,7 @@ export function LivePlayer({
                 watchUrl={stream.watchUrl}
                 facebookPageUrl={facebookPageUrl}
                 youtubeChannelUrl={youtubeChannelUrl}
+                tiktokProfileUrl={tiktokProfileUrl}
                 platform={stream.platform}
               />
             </div>
@@ -96,12 +101,19 @@ export function LivePlayer({
 
 function PlatformIcon({ platform }: { platform?: string }) {
   if (platform === "youtube") return <Play className="h-16 w-16 text-[#E8872A]" />;
+  if (platform === "tiktok") return <Music2 className="h-16 w-16 text-[#E8872A]" />;
   return <Share2 className="h-16 w-16 text-[#E8872A]" />;
 }
 
 function PlatformBadge({ platform }: { platform: string }) {
   const label =
-    platform === "facebook" ? "Facebook Live" : platform === "youtube" ? "YouTube Live" : "Live";
+    platform === "facebook"
+      ? "Facebook Live"
+      : platform === "youtube"
+        ? "YouTube Live"
+        : platform === "tiktok"
+          ? "TikTok Live"
+          : "Live";
   return (
     <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur">
       {label}
@@ -113,15 +125,19 @@ function WatchButtons({
   watchUrl,
   facebookPageUrl,
   youtubeChannelUrl,
+  tiktokProfileUrl,
   platform,
 }: {
   watchUrl?: string | null;
   facebookPageUrl?: string;
   youtubeChannelUrl?: string;
+  tiktokProfileUrl?: string;
   platform?: string;
 }) {
   const fb = watchUrl?.includes("facebook") ? watchUrl : facebookPageUrl;
-  const yt = watchUrl?.includes("youtube") ? watchUrl : youtubeChannelUrl;
+  const yt = watchUrl?.includes("youtube") || watchUrl?.includes("youtu.be") ? watchUrl : youtubeChannelUrl;
+  const tt =
+    watchUrl?.includes("tiktok") || watchUrl?.includes("vm.tiktok") ? watchUrl : tiktokProfileUrl;
 
   return (
     <div className="flex flex-wrap justify-center gap-3">
@@ -141,7 +157,15 @@ function WatchButtons({
           </Link>
         </Button>
       )}
-      {watchUrl && (
+      {(platform === "tiktok" || tt) && tt && (
+        <Button asChild variant="outline" className="border-white text-white hover:bg-white/10">
+          <Link href={tt} target="_blank" rel="noopener noreferrer">
+            <Music2 className="mr-2 h-4 w-4" />
+            Watch on TikTok
+          </Link>
+        </Button>
+      )}
+      {watchUrl && !watchUrl.includes("facebook") && !watchUrl.includes("youtube") && !watchUrl.includes("tiktok") && (
         <Button asChild variant="ghost" className="text-white hover:bg-white/10">
           <Link href={watchUrl} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="mr-2 h-4 w-4" />
@@ -157,17 +181,19 @@ function OfflinePanel({
   message,
   facebookPageUrl,
   youtubeChannelUrl,
+  tiktokProfileUrl,
 }: {
   message?: string;
   facebookPageUrl?: string;
   youtubeChannelUrl?: string;
+  tiktokProfileUrl?: string;
 }) {
   return (
     <div className="rounded-2xl border-2 border-dashed border-[#2E2A86]/30 bg-gray-50 p-10 text-center dark:border-white/20 dark:bg-gray-900">
       <Radio className="mx-auto h-12 w-12 text-[#E8872A]" />
       <h3 className="mt-4 text-xl font-bold text-[#2E2A86] dark:text-white">Not Live Right Now</h3>
       <p className="mx-auto mt-2 max-w-md text-gray-600 dark:text-gray-400">
-        {message || "Follow us on Facebook for the next live broadcast."}
+        {message || "Follow us on Facebook, YouTube, or TikTok for the next live broadcast."}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         {facebookPageUrl && (
@@ -183,6 +209,14 @@ function OfflinePanel({
             <Link href={youtubeChannelUrl} target="_blank" rel="noopener noreferrer">
               <Play className="mr-2 h-4 w-4" />
               YouTube Channel
+            </Link>
+          </Button>
+        )}
+        {tiktokProfileUrl && (
+          <Button asChild variant="outline">
+            <Link href={tiktokProfileUrl} target="_blank" rel="noopener noreferrer">
+              <Music2 className="mr-2 h-4 w-4" />
+              TikTok
             </Link>
           </Button>
         )}

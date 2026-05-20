@@ -1,4 +1,5 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { registerModel } from "@/lib/register-model";
 import type { LivePlatform } from "@/lib/live-embed";
 
 export interface ILiveStream {
@@ -11,12 +12,15 @@ export interface ILiveStream {
   platform: LivePlatform;
   facebookVideoUrl?: string;
   youtubeEmbedUrl?: string;
+  tiktokVideoUrl?: string;
   customEmbedUrl?: string;
   muxPlaybackId?: string;
   obsStreamKey?: string;
   scheduledAt?: Date;
   endedAt?: Date;
   replayUrl?: string;
+  /** Auto-created video in /videos after broadcast ends */
+  publishedVideoId?: mongoose.Types.ObjectId;
   viewCount: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -31,22 +35,22 @@ const LiveStreamSchema = new Schema<ILiveStream>(
     isLive: { type: Boolean, default: false },
     platform: {
       type: String,
-      enum: ["facebook", "youtube", "custom"],
+      enum: ["facebook", "youtube", "tiktok", "custom"],
       default: "facebook",
     },
     facebookVideoUrl: String,
     youtubeEmbedUrl: String,
+    tiktokVideoUrl: String,
     customEmbedUrl: String,
     muxPlaybackId: String,
     obsStreamKey: String,
     scheduledAt: Date,
     endedAt: Date,
     replayUrl: String,
+    publishedVideoId: { type: Schema.Types.ObjectId, ref: "Video" },
     viewCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-export const LiveStream: Model<ILiveStream> =
-  mongoose.models.LiveStream ??
-  mongoose.model<ILiveStream>("LiveStream", LiveStreamSchema);
+export const LiveStream = registerModel<ILiveStream>("LiveStream", LiveStreamSchema);

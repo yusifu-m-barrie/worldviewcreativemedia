@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/videos", label: "Videos" },
   { href: "/blog", label: "Blog" },
   { href: "/categories", label: "Categories" },
+  { href: "/about", label: "About" },
 ];
 
 export function Header() {

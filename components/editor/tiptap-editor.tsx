@@ -18,7 +18,7 @@ interface TiptapEditorProps {
 }
 
 const editorSurfaceClass =
-  "prose-article min-h-[280px] max-w-none rounded-b-lg border border-t-0 border-gray-200 bg-white p-4 text-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 [&_.ProseMirror]:min-h-[260px] [&_.ProseMirror]:text-gray-900 [&_.ProseMirror]:outline-none dark:[&_.ProseMirror]:text-gray-100";
+  "prose-article min-h-[280px] max-w-none rounded-b-lg border border-t-0 border-border bg-background p-4 text-foreground focus:outline-none dark:bg-gray-950 dark:text-gray-100 [&_.ProseMirror]:min-h-[260px] [&_.ProseMirror]:text-foreground [&_.ProseMirror]:outline-none dark:[&_.ProseMirror]:text-gray-100";
 
 export function TiptapEditor({
   content = "",
@@ -96,8 +96,8 @@ export function TiptapEditor({
   ];
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-      <div className="flex flex-wrap gap-1 rounded-t-lg border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
+    <div className="overflow-hidden rounded-lg border border-border">
+      <div className="flex flex-wrap gap-1 rounded-t-lg border-b border-border bg-muted p-2 dark:bg-gray-900">
         {tools.map(({ icon: Icon, action, active }, i) => (
           <Button
             key={i}
@@ -106,7 +106,7 @@ export function TiptapEditor({
             size="sm"
             onClick={action}
             className={cn(
-              "text-gray-700 dark:text-gray-200",
+              "text-foreground-muted dark:text-gray-200",
               active && "bg-[#2E2A86]/10 text-[#2E2A86] dark:bg-[#E8872A]/20 dark:text-[#E8872A]"
             )}
           >
@@ -118,7 +118,7 @@ export function TiptapEditor({
           variant="ghost"
           size="sm"
           disabled={uploading}
-          className="text-gray-700 dark:text-gray-200"
+          className="text-foreground-muted dark:text-gray-200"
           onClick={() => fileRef.current?.click()}
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}

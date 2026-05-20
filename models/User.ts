@@ -1,4 +1,6 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { registerModel } from "@/lib/register-model";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 import { ROLES, type Role } from "@/config/roles";
 
 export interface IUser {
@@ -7,6 +9,8 @@ export interface IUser {
   email: string;
   password: string;
   role: Role;
+  /** Access flags for dashboard sections (main admin assigns these) */
+  permissions?: AdminPermissions;
   image?: string;
   bio?: string;
   socialLinks?: Record<string, string>;
@@ -27,6 +31,12 @@ const UserSchema = new Schema<IUser>(
       enum: Object.values(ROLES),
       default: ROLES.USER,
     },
+    permissions: {
+      articles: { type: Boolean, default: true },
+      videos: { type: Boolean, default: false },
+      liveTv: { type: Boolean, default: false },
+      settings: { type: Boolean, default: false },
+    },
     image: String,
     bio: String,
     socialLinks: { type: Map, of: String },
@@ -39,5 +49,4 @@ const UserSchema = new Schema<IUser>(
 
 UserSchema.index({ role: 1 });
 
-export const User: Model<IUser> =
-  mongoose.models.User ?? mongoose.model<IUser>("User", UserSchema);
+export const User = registerModel<IUser>("User", UserSchema);

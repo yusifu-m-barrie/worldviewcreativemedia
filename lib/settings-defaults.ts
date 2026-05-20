@@ -12,6 +12,7 @@ export interface SiteSettingsValue {
   social: {
     facebook: string;
     youtube: string;
+    tiktok: string;
     instagram: string;
     twitter: string;
     whatsapp: string;
@@ -20,6 +21,7 @@ export interface SiteSettingsValue {
     defaultPlatform: LivePlatform;
     facebookPageUrl: string;
     youtubeChannelUrl: string;
+    tiktokProfileUrl: string;
     /** Shown when no embed is active */
     offlineMessage: string;
   };
@@ -37,6 +39,7 @@ export const defaultSiteSettings: SiteSettingsValue = {
   social: {
     facebook: siteConfig.social.facebook,
     youtube: siteConfig.social.youtube,
+    tiktok: siteConfig.social.tiktok,
     instagram: siteConfig.social.instagram,
     twitter: siteConfig.social.twitter,
     whatsapp: siteConfig.social.whatsapp,
@@ -45,8 +48,9 @@ export const defaultSiteSettings: SiteSettingsValue = {
     defaultPlatform: "facebook",
     facebookPageUrl: siteConfig.social.facebook,
     youtubeChannelUrl: siteConfig.social.youtube,
+    tiktokProfileUrl: siteConfig.social.tiktok,
     offlineMessage:
-      "We are currently offline. Follow us on Facebook for the next live broadcast.",
+      "We are currently offline. Follow us on Facebook, YouTube, or TikTok for the next live broadcast.",
   },
   analytics: {},
 };

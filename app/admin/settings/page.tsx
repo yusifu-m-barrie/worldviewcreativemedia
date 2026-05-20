@@ -1,5 +1,6 @@
 import { getSiteSettings } from "@/services/settings.service";
 import { SettingsForm } from "./settings-form";
+import { adminPageTitle, adminSubtitle } from "@/lib/admin-ui";
 
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
@@ -7,8 +8,8 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#2E2A86] dark:text-white">Site Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className={adminPageTitle}>Site Settings</h1>
+        <p className={`mt-1 ${adminSubtitle}`}>
           Social links, live TV defaults, contact info, and analytics
         </p>
       </div>

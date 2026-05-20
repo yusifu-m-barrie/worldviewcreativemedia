@@ -18,7 +18,7 @@ export function ThemeToggle({ variant = "header" }: ThemeToggleProps) {
 
   const className =
     variant === "admin"
-      ? "rounded-md p-2 text-foreground/70 hover:bg-muted"
+      ? "rounded-md p-2 text-foreground hover:bg-muted"
       : "rounded-md p-2 text-white hover:bg-white/10";
 
   return (

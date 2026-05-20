@@ -1,4 +1,5 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { registerModel } from "@/lib/register-model";
 
 export interface IVideo {
   _id: mongoose.Types.ObjectId;
@@ -16,6 +17,8 @@ export interface IVideo {
   status: "draft" | "published";
   publishedAt?: Date;
   author: mongoose.Types.ObjectId;
+  /** Set when auto-published from a ended live broadcast */
+  sourceLiveStreamId?: mongoose.Types.ObjectId;
 }
 
 const VideoSchema = new Schema<IVideo>(
@@ -34,11 +37,12 @@ const VideoSchema = new Schema<IVideo>(
     status: { type: String, enum: ["draft", "published"], default: "draft" },
     publishedAt: Date,
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    sourceLiveStreamId: { type: Schema.Types.ObjectId, ref: "LiveStream" },
   },
   { timestamps: true }
 );
 
 VideoSchema.index({ status: 1, publishedAt: -1 });
+VideoSchema.index({ sourceLiveStreamId: 1 });
 
-export const Video: Model<IVideo> =
-  mongoose.models.Video ?? mongoose.model<IVideo>("Video", VideoSchema);
+export const Video = registerModel<IVideo>("Video", VideoSchema);
