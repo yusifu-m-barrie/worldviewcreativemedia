@@ -7,6 +7,7 @@ import { StoryGridCard } from "@/components/articles/story-grid-card";
 import { cn } from "@/lib/utils";
 import type { ArticleCard } from "@/types";
 import type { CategoryOption } from "@/services/category.service";
+import { useTranslations } from "@/components/i18n/locale-provider";
 
 interface LatestStoriesSectionProps {
   articles: ArticleCard[];
@@ -39,6 +40,7 @@ function FilterPill({
 }
 
 export function LatestStoriesSection({ articles, categories }: LatestStoriesSectionProps) {
+  const t = useTranslations();
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
@@ -63,7 +65,7 @@ export function LatestStoriesSection({ articles, categories }: LatestStoriesSect
 
       <div className="mb-6 flex flex-wrap gap-2">
         <FilterPill active={!categorySlug} onClick={() => setCategorySlug(null)}>
-          All
+          {t("home.filterAll")}
         </FilterPill>
         {categories.map((cat) => (
           <FilterPill
@@ -84,13 +86,13 @@ export function LatestStoriesSection({ articles, categories }: LatestStoriesSect
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border py-12 text-center text-foreground-muted">
-          No stories in this category.{" "}
+          {t("home.noStoriesInCategory")}{" "}
           <button
             type="button"
             className="font-semibold text-[#E8872A] hover:underline"
             onClick={() => setCategorySlug(null)}
           >
-            Show all
+            {t("home.showAll")}
           </button>
         </p>
       )}

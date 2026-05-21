@@ -1,14 +1,19 @@
-import Image from "next/image";
 import { getAboutPage } from "@/services/about.service";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { siteConfig } from "@/config/site";
+import Image from "next/image";
 
-export const metadata = {
-  title: `About Us | ${siteConfig.name}`,
-  description: "Learn about WorldView Creative Media and our team.",
-};
+export async function generateMetadata() {
+  const { t } = await getServerTranslations();
+  return {
+    title: `${t("about.title")} | ${siteConfig.name}`,
+    description: t("about.title"),
+  };
+}
 
 export default async function AboutPage() {
-  const about = await getAboutPage();
+  const { t, locale } = await getServerTranslations();
+  const about = await getAboutPage(locale);
 
   return (
     <div className="bg-background text-foreground">
@@ -29,7 +34,7 @@ export default async function AboutPage() {
         <section className="border-t border-border bg-muted/30 py-12 lg:py-16">
           <div className="mx-auto max-w-6xl px-4 lg:px-6">
             <h2 className="mb-10 text-center text-2xl font-bold text-[#2E2A86] dark:text-[#E8872A]">
-              Our Team
+              {t("about.team")}
             </h2>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {about.teamMembers.map((member) => (

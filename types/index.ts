@@ -1,5 +1,6 @@
 import type { Role } from "@/config/roles";
 import type { AdminPermissions } from "@/lib/admin-permissions";
+import type { ContentTranslations } from "@/lib/i18n/types";
 
 export interface SessionUser {
   id: string;
@@ -24,6 +25,7 @@ export interface ArticleCard {
   viewCount?: number;
   /** Sierra Leone region / city for homepage filters */
   region?: string;
+  translations?: ContentTranslations;
 }
 
 export interface VideoCard {

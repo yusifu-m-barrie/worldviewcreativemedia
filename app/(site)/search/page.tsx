@@ -1,6 +1,7 @@
 import { ArticleCard } from "@/components/articles/article-card";
 import { SectionHeading } from "@/components/home/section-heading";
 import { buildMetadata } from "@/lib/seo";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getPublishedArticles } from "@/services/article.service";
 
 export const metadata = buildMetadata({
@@ -15,17 +16,18 @@ interface SearchPageProps {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const { t, locale } = await getServerTranslations();
   const { q } = await searchParams;
   const query = q?.trim() || "";
   const results = query
-    ? await getPublishedArticles({ search: query, limit: 24 })
+    ? await getPublishedArticles({ search: query, limit: 24, locale })
     : { data: [], total: 0, page: 1, totalPages: 0 };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
       <SectionHeading
-        title={query ? `Results for "${query}"` : "Search"}
-        subtitle={query ? `${results.total} articles found` : "Enter a search term in the URL: /search?q=your+query"}
+        title={query ? t("search.resultsFor", { query }) : t("search.title")}
+        subtitle={query ? `${results.total} articles` : t("search.title")}
       />
       {results.data.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -34,7 +36,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           ))}
         </div>
       ) : query ? (
-        <p className="text-center text-gray-500">No articles found. Try a different search term.</p>
+        <p className="text-center text-foreground-muted">{t("common.noResults")}</p>
       ) : null}
     </div>
   );

@@ -7,20 +7,23 @@ import { CategoriesGrid } from "@/components/home/categories-grid";
 import { VideoHighlights } from "@/components/home/video-highlights";
 import { LatestStoriesSection } from "@/components/home/latest-stories-section";
 import { TrendingNowSidebar } from "@/components/home/trending-now-sidebar";
+import { AdSlotServer } from "@/components/ads/ad-slot-server";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getPublishedArticles } from "@/services/article.service";
 import { getPublishedVideos } from "@/services/video.service";
 import { getCurrentLiveStream } from "@/services/livestream.service";
 import { getActiveCategories, getCategoriesWithCounts } from "@/services/category.service";
 
 export default async function HomePage() {
+  const { t, locale } = await getServerTranslations();
   const [featured, latest, videos, liveStream, categories, categoriesWithCounts] =
     await Promise.all([
-      getPublishedArticles({ featured: true, limit: 8 }),
-      getPublishedArticles({ limit: 12 }),
-      getPublishedVideos({ limit: 3 }),
-      getCurrentLiveStream(),
-      getActiveCategories(),
-      getCategoriesWithCounts(),
+      getPublishedArticles({ featured: true, limit: 8, locale }),
+      getPublishedArticles({ limit: 12, locale }),
+      getPublishedVideos({ limit: 3, locale }),
+      getCurrentLiveStream(locale),
+      getActiveCategories(locale),
+      getCategoriesWithCounts(locale),
     ]);
 
   const heroFeatured = featured.data[0];
@@ -30,45 +33,55 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection featured={heroFeatured} />
+      <div className="mx-auto max-w-7xl px-4 lg:px-6">
+        <AdSlotServer slotKey="homepageHero" format="horizontal" minHeight={90} className="py-4" />
+      </div>
 
-      {/* Latest Stories + Trending — directly under hero */}
       <section className="border-b border-border bg-background py-10 lg:py-14">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-3 lg:gap-12 lg:px-6">
           <div className="lg:col-span-2">
             <LatestStoriesSection articles={latest.data} categories={categories} />
           </div>
-          <div className="lg:col-span-1">
+          <div className="space-y-6 lg:col-span-1">
             <TrendingNowSidebar
               articles={trendingFeatured.length > 0 ? trendingFeatured : featured.data}
             />
+            <AdSlotServer slotKey="homepageSidebar" format="rectangle" minHeight={250} />
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 py-12 lg:px-6">
         <section>
-          <SectionHeading title="Featured Stories" href="/news" />
+          <SectionHeading title={t("home.featuredStories")} href="/news" linkLabel={t("common.viewAll")} />
           <FeaturedSlider articles={sliderArticles} />
         </section>
 
-        <LiveTVSection stream={liveStream} />
+        <LiveTVSection
+          stream={liveStream}
+          labels={{
+            badge: t("nav.liveTv"),
+            subtitle: t("home.liveTvSubtitle"),
+            cta: t("home.fullLiveTv"),
+          }}
+        />
+
+        <AdSlotServer slotKey="homepageMid" format="auto" minHeight={90} />
 
         <section>
-          <SectionHeading title="Browse Categories" href="/categories" />
-          <CategoriesGrid categories={categoriesWithCounts} />
+          <SectionHeading title={t("home.browseCategories")} href="/categories" linkLabel={t("common.viewAll")} />
+          <CategoriesGrid categories={categoriesWithCounts} articlesLabel={t("categories.articles")} />
         </section>
 
         <section>
-          <SectionHeading title="Video Highlights" href="/videos" />
+          <SectionHeading title={t("home.videoHighlights")} href="/videos" linkLabel={t("common.viewAll")} />
           <VideoHighlights videos={videos.data} />
         </section>
 
         <section className="rounded-2xl bg-[#2E2A86] p-8 text-white lg:p-12">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold lg:text-3xl">Get WorldView in your inbox</h2>
-            <p className="mt-2 text-white/70">
-              Daily headlines, live TV alerts, and exclusive video journalism delivered to you.
-            </p>
+            <h2 className="text-2xl font-bold lg:text-3xl">{t("home.newsletterTitle")}</h2>
+            <p className="mt-2 text-white/70">{t("home.newsletterSubtitle")}</p>
             <div className="mt-6">
               <NewsletterForm />
             </div>

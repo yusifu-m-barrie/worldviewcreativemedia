@@ -1,30 +1,45 @@
+"use client";
+
 import Link from "next/link";
 import { Share2, Globe, Video, Camera, Music2 } from "lucide-react";
 import { SiteLogo } from "@/components/site-logo";
+import { useTranslations } from "@/components/i18n/locale-provider";
 import { siteConfig } from "@/config/site";
 
-const footerLinks = {
-  News: [
-    { href: "/news", label: "Latest News" },
-    { href: "/categories", label: "All Categories" },
-    { href: "/category/national", label: "National" },
-    { href: "/category/africa", label: "Africa" },
-    { href: "/category/world", label: "World" },
-  ],
-  Media: [
-    { href: "/live-tv", label: "Live TV" },
-    { href: "/videos", label: "Videos" },
-    { href: "/blog", label: "Blog" },
-  ],
-  Company: [
-    { href: "/about", label: "About Us" },
-    { href: "/contact", label: "Contact" },
-    { href: "/advertise", label: "Advertise" },
-    { href: "/careers", label: "Careers" },
-  ],
-};
-
 export function Footer() {
+  const t = useTranslations();
+
+  const footerSections = [
+    {
+      title: t("footer.news"),
+      links: [
+        { href: "/news", label: t("footer.latestNews") },
+        { href: "/categories", label: t("footer.allCategories") },
+        { href: "/category/national", label: t("footer.national") },
+        { href: "/category/africa", label: t("footer.africa") },
+        { href: "/category/world", label: t("footer.world") },
+      ],
+    },
+    {
+      title: t("footer.media"),
+      links: [
+        { href: "/live-tv", label: t("nav.liveTv") },
+        { href: "/videos", label: t("nav.videos") },
+        { href: "/blog", label: t("nav.blog") },
+      ],
+    },
+    {
+      title: t("footer.company"),
+      links: [
+        { href: "/about", label: t("footer.aboutUs") },
+        { href: "/contact", label: t("footer.contact") },
+        { href: "/advertise", label: t("footer.advertise") },
+        { href: "/privacy", label: t("footer.privacy") },
+        { href: "/terms", label: t("footer.terms") },
+      ],
+    },
+  ];
+
   return (
     <footer className="bg-[#2E2A86] text-white">
       <div className="relative overflow-hidden">
@@ -35,11 +50,11 @@ export function Footer() {
               <SiteLogo href="/" onDark className="mb-4" width={200} height={56} />
               <p className="text-sm text-white/70">{siteConfig.description.slice(0, 120)}…</p>
             </div>
-            {Object.entries(footerLinks).map(([title, links]) => (
-              <div key={title}>
-                <h4 className="mb-4 font-bold text-[#E8872A]">{title}</h4>
+            {footerSections.map((section) => (
+              <div key={section.title}>
+                <h4 className="mb-4 font-bold text-[#E8872A]">{section.title}</h4>
                 <ul className="space-y-2">
-                  {links.map((link) => (
+                  {section.links.map((link) => (
                     <li key={link.href}>
                       <Link href={link.href} className="text-sm text-white/70 hover:text-white">
                         {link.label}
@@ -52,7 +67,7 @@ export function Footer() {
           </div>
           <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
             <p className="text-sm text-white/60">
-              © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+              © {new Date().getFullYear()} {siteConfig.name}. {t("common.allRights")}
             </p>
             <div className="flex gap-4">
               <a href={siteConfig.social.facebook} aria-label="Facebook" className="text-white/70 hover:text-[#E8872A]">

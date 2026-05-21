@@ -36,6 +36,14 @@ export async function getSiteSettings(): Promise<SiteSettingsValue> {
       ...defaultSiteSettings.analytics,
       ...(stored.analytics || {}),
     },
+    ads: {
+      ...defaultSiteSettings.ads,
+      ...(stored.ads || {}),
+      slots: {
+        ...defaultSiteSettings.ads?.slots,
+        ...(stored.ads?.slots || {}),
+      },
+    },
   };
 }
 

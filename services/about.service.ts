@@ -4,24 +4,28 @@ import {
   defaultAboutPage,
   type AboutPageValue,
 } from "@/lib/about-defaults";
+import type { Locale } from "@/lib/i18n/config";
+import { localizeAboutPage } from "@/lib/i18n/localize";
 import { SiteSettings } from "@/models/SiteSettings";
 
-export async function getAboutPage(): Promise<AboutPageValue> {
-  if (!isDbConfigured() || !(await tryConnectDB())) {
-    return defaultAboutPage;
+export async function getAboutPage(locale: Locale = "en"): Promise<AboutPageValue> {
+  let base = defaultAboutPage;
+
+  if (isDbConfigured() && (await tryConnectDB())) {
+    const doc = await SiteSettings.findOne({ key: ABOUT_SETTINGS_KEY }).lean();
+    if (doc?.value) {
+      const stored = doc.value as Partial<AboutPageValue>;
+      base = {
+        ...defaultAboutPage,
+        ...stored,
+        teamMembers: Array.isArray(stored.teamMembers)
+          ? stored.teamMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          : [],
+      };
+    }
   }
 
-  const doc = await SiteSettings.findOne({ key: ABOUT_SETTINGS_KEY }).lean();
-  if (!doc?.value) return defaultAboutPage;
-
-  const stored = doc.value as Partial<AboutPageValue>;
-  return {
-    ...defaultAboutPage,
-    ...stored,
-    teamMembers: Array.isArray(stored.teamMembers)
-      ? stored.teamMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      : [],
-  };
+  return localizeAboutPage(base, locale);
 }
 
 export async function saveAboutPage(value: AboutPageValue): Promise<void> {

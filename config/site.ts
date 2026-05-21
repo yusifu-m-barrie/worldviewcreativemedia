@@ -26,7 +26,7 @@ export const siteConfig = {
     address: "Freetown, Sierra Leone",
   },
   defaultLocale: "en",
-  supportedLocales: ["en", "fr"] as const,
+  supportedLocales: ["en", "fr", "es"] as const,
 };
 
 export type SiteConfig = typeof siteConfig;

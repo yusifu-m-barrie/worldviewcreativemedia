@@ -4,6 +4,7 @@ import { cloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 import {
   MAX_VIDEO_DURATION_SEC,
   MAX_VIDEO_FILE_BYTES,
+  formatMaxVideoDuration,
   getVideoThumbnailUrl,
   getOptimizedVideoPlaybackUrl,
 } from "@/lib/cloudinary-video";
@@ -13,6 +14,9 @@ import type { Role } from "@/config/roles";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+/** Small-file fallback only — large videos must use direct signed upload from the browser */
+const SERVER_FALLBACK_MAX_BYTES = 4 * 1024 * 1024;
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -46,10 +50,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File must be a video" }, { status: 400 });
     }
 
+    if (file.size > SERVER_FALLBACK_MAX_BYTES) {
+      return NextResponse.json(
+        {
+          error:
+            "File is too large for server upload. The browser will upload directly to Cloudinary instead — refresh the page and try again.",
+        },
+        { status: 413 }
+      );
+    }
+
     if (file.size > MAX_VIDEO_FILE_BYTES) {
       return NextResponse.json(
         {
-          error: `Video is too large (max ${Math.round(MAX_VIDEO_FILE_BYTES / 1024 / 1024)}MB). Compress or shorten to 5 minutes.`,
+          error: `Video is too large (max ${Math.round(MAX_VIDEO_FILE_BYTES / 1024 / 1024)}MB). Compress or shorten to ${formatMaxVideoDuration()}.`,
         },
         { status: 400 }
       );
@@ -57,7 +71,7 @@ export async function POST(req: Request) {
 
     if (clientDuration > MAX_VIDEO_DURATION_SEC) {
       return NextResponse.json(
-        { error: "Video must be 5 minutes or shorter" },
+        { error: `Video must be ${formatMaxVideoDuration()} or shorter` },
         { status: 400 }
       );
     }
@@ -76,9 +90,7 @@ export async function POST(req: Request) {
         {
           resource_type: "video",
           folder,
-          timeout: 300000,
-          eager: [{ streaming_profile: "hd", format: "mp4" }],
-          eager_async: true,
+          timeout: 600000,
         },
         (err, res) => {
           if (err) reject(err);
@@ -97,7 +109,7 @@ export async function POST(req: Request) {
         /* ignore cleanup errors */
       }
       return NextResponse.json(
-        { error: "Uploaded video exceeds 5 minutes. Please upload a shorter clip." },
+        { error: `Uploaded video exceeds ${formatMaxVideoDuration()}. Please upload a shorter clip.` },
         { status: 400 }
       );
     }

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { buildMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/utils";
 import { getCurrentLiveStream, getUpcomingStreams, getStreamArchive } from "@/services/livestream.service";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getSiteSettings } from "@/services/settings.service";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
@@ -15,8 +16,9 @@ export const metadata = buildMetadata({
 });
 
 export default async function LiveTVPage() {
+  const { t, locale } = await getServerTranslations();
   const [current, upcoming, archive, settings] = await Promise.all([
-    getCurrentLiveStream(),
+    getCurrentLiveStream(locale),
     getUpcomingStreams(),
     getStreamArchive(),
     getSiteSettings(),
@@ -24,7 +26,7 @@ export default async function LiveTVPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
-      <SectionHeading title="Live TV" subtitle="Watch WorldView live from Freetown and West Africa" />
+      <SectionHeading title={t("liveTv.title")} subtitle={t("liveTv.subtitle")} />
 
       <section className="mb-12">
         <LivePlayer
@@ -38,7 +40,7 @@ export default async function LiveTVPage() {
 
       {upcoming.length > 0 && (
         <section className="mb-12">
-          <h2 className="mb-4 text-xl font-bold text-[#2E2A86] dark:text-white">Upcoming</h2>
+          <h2 className="mb-4 text-xl font-bold text-[#2E2A86] dark:text-white">{t("liveTv.upcoming")}</h2>
           <ul className="space-y-3">
             {upcoming.map((s) => (
               <li
@@ -60,7 +62,7 @@ export default async function LiveTVPage() {
 
       {archive.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-[#2E2A86] dark:text-white">Replay Archive</h2>
+          <h2 className="mb-4 text-xl font-bold text-[#2E2A86] dark:text-white">{t("liveTv.replayArchive")}</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {archive.map((item) => {
               const a = item as {

@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "news": "Noticias",
+    "liveTv": "TV en vivo",
+    "videos": "Videos",
+    "blog": "Blog",
+    "categories": "Categorías",
+    "about": "Acerca de",
+    "search": "Buscar",
+    "signIn": "Iniciar sesión",
+    "live": "En vivo"
+  },
+  "common": {
+    "viewAll": "Ver todo",
+    "readMore": "Leer más",
+    "backToNews": "Volver a noticias",
+    "views": "vistas",
+    "by": "Por",
+    "breaking": "Última hora",
+    "relatedStories": "Historias relacionadas",
+    "noResults": "No se encontraron artículos. Pruebe otro término.",
+    "searchPlaceholder": "Buscar noticias…",
+    "allRights": "Todos los derechos reservados.",
+    "advertisement": "Anuncio"
+  },
+  "home": {
+    "latestStories": "Últimas noticias",
+    "trendingNow": "Tendencias",
+    "featuredStories": "Destacados",
+    "browseCategories": "Explorar categorías",
+    "videoHighlights": "Videos destacados",
+    "newsletterTitle": "Reciba WorldView en su correo",
+    "newsletterSubtitle": "Titulares diarios, alertas de TV en vivo y periodismo en video exclusivo.",
+    "trendingEmpty": "Aún no hay artículos destacados.",
+    "sidebarNewsletterTitle": "Noticias de Sierra Leona primero",
+    "sidebarNewsletterSubtitle": "Resumen diario gratuito — directo a su bandeja de entrada.",
+    "liveTvSubtitle": "Vea noticias en vivo en nuestro sitio — Facebook, YouTube y TikTok.",
+    "fullLiveTv": "Página de TV en vivo",
+    "filterAll": "Todos",
+    "noStoriesInCategory": "No hay artículos en esta categoría.",
+    "showAll": "Ver todos"
+  },
+  "news": {
+    "title": "Últimas noticias",
+    "subtitle": "Reportajes y noticias de última hora desde Sierra Leona y África Occidental",
+    "empty": "Aún no hay artículos publicados."
+  },
+  "blog": {
+    "title": "Blog y opinión",
+    "subtitle": "Análisis, comentarios y voces de WorldView Creative Media"
+  },
+  "videos": {
+    "title": "Videos",
+    "subtitle": "Vea nuestro último periodismo en video"
+  },
+  "liveTv": {
+    "title": "TV en vivo",
+    "subtitle": "Vea WorldView en vivo desde Freetown y África Occidental",
+    "upcoming": "Próximamente",
+    "replayArchive": "Archivo de repeticiones"
+  },
+  "categories": {
+    "title": "Categorías",
+    "subtitle": "Explore noticias por tema",
+    "articles": "artículos"
+  },
+  "about": {
+    "title": "Acerca de nosotros",
+    "team": "Nuestro equipo"
+  },
+  "search": {
+    "title": "Buscar",
+    "resultsFor": "Resultados para \"{query}\""
+  },
+  "login": {
+    "title": "Inicio de sesión admin",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "submit": "Iniciar sesión",
+    "demoHint": "Demo: admin@worldviewcreativemedia.com"
+  },
+  "footer": {
+    "news": "Noticias",
+    "latestNews": "Últimas noticias",
+    "allCategories": "Todas las categorías",
+    "national": "Nacional",
+    "africa": "África",
+    "world": "Mundo",
+    "media": "Medios",
+    "company": "Empresa",
+    "aboutUs": "Acerca de",
+    "contact": "Contacto",
+    "advertise": "Publicidad",
+    "careers": "Empleo",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de uso"
+  },
+  "legal": {
+    "privacyTitle": "Política de privacidad",
+    "termsTitle": "Términos de uso",
+    "contactTitle": "Contáctenos",
+    "lastUpdated": "Última actualización: {date}",
+    "privacyIntro": "WorldView Creative Media respeta su privacidad. Esta política explica cómo recopilamos y protegemos su información.",
+    "privacyCookiesTitle": "Cookies",
+    "privacyCookies": "Usamos cookies para el sitio, analítica (Google Analytics) y publicidad (Google AdSense).",
+    "privacyDataTitle": "Información que recopilamos",
+    "privacyData": "Podemos recopilar datos de analítica, publicidad e información enviada en formularios de contacto o boletín.",
+    "privacyThirdTitle": "Terceros",
+    "privacyThird": "Usamos Google Analytics y Google AdSense, cada uno con su propia política de privacidad.",
+    "termsIntro": "Al usar WorldView Creative Media, acepta estos términos.",
+    "termsContentTitle": "Contenido",
+    "termsContent": "El contenido informativo se ofrece con fines generales. Buscamos precisión sin garantía absoluta.",
+    "termsAdsTitle": "Publicidad",
+    "termsAds": "El sitio puede mostrar anuncios de terceros. No somos responsables del contenido de los anunciantes.",
+    "contactIntro": "Recibimos noticias, alianzas y comentarios de lectores en Sierra Leona y África Occidental.",
+    "contactAdvertise": "Para prensa y publicidad, visite nuestra página de"
+  },
+  "article": {
+    "contentNotice": "El contenido del artículo puede aparecer en su idioma original."
+  }
+}

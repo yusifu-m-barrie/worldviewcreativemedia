@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "news": "Actualités",
+    "liveTv": "TV en direct",
+    "videos": "Vidéos",
+    "blog": "Blog",
+    "categories": "Catégories",
+    "about": "À propos",
+    "search": "Rechercher",
+    "signIn": "Connexion",
+    "live": "Direct"
+  },
+  "common": {
+    "viewAll": "Voir tout",
+    "readMore": "Lire la suite",
+    "backToNews": "Retour aux actualités",
+    "views": "vues",
+    "by": "Par",
+    "breaking": "Urgent",
+    "relatedStories": "Articles connexes",
+    "noResults": "Aucun article trouvé. Essayez un autre terme.",
+    "searchPlaceholder": "Rechercher des actualités…",
+    "allRights": "Tous droits réservés.",
+    "advertisement": "Publicité"
+  },
+  "home": {
+    "latestStories": "Dernières actualités",
+    "trendingNow": "Tendances",
+    "featuredStories": "À la une",
+    "browseCategories": "Parcourir les catégories",
+    "videoHighlights": "Vidéos à la une",
+    "newsletterTitle": "Recevez WorldView dans votre boîte mail",
+    "newsletterSubtitle": "Titres du jour, alertes TV en direct et journalisme vidéo exclusif.",
+    "trendingEmpty": "Aucun article en vedette pour le moment.",
+    "sidebarNewsletterTitle": "Les nouvelles de Sierra Leone en premier",
+    "sidebarNewsletterSubtitle": "Briefing quotidien gratuit — directement dans votre boîte mail.",
+    "liveTvSubtitle": "Suivez l'actualité en direct sur notre site — Facebook, YouTube et TikTok.",
+    "fullLiveTv": "Page TV en direct",
+    "filterAll": "Tout",
+    "noStoriesInCategory": "Aucun article dans cette catégorie.",
+    "showAll": "Tout afficher"
+  },
+  "news": {
+    "title": "Dernières actualités",
+    "subtitle": "Reportages et breaking news depuis la Sierra Leone et l'Afrique de l'Ouest",
+    "empty": "Aucun article publié pour le moment."
+  },
+  "blog": {
+    "title": "Blog & opinions",
+    "subtitle": "Analyses, commentaires et voix de WorldView Creative Media"
+  },
+  "videos": {
+    "title": "Vidéos",
+    "subtitle": "Regardez nos derniers reportages vidéo"
+  },
+  "liveTv": {
+    "title": "TV en direct",
+    "subtitle": "Regardez WorldView en direct depuis Freetown et l'Afrique de l'Ouest",
+    "upcoming": "À venir",
+    "replayArchive": "Archives des rediffusions"
+  },
+  "categories": {
+    "title": "Catégories",
+    "subtitle": "Parcourir l'actualité par thème",
+    "articles": "articles"
+  },
+  "about": {
+    "title": "À propos",
+    "team": "Notre équipe"
+  },
+  "search": {
+    "title": "Rechercher",
+    "resultsFor": "Résultats pour « {query} »"
+  },
+  "login": {
+    "title": "Connexion admin",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "demoHint": "Démo : admin@worldviewcreativemedia.com"
+  },
+  "footer": {
+    "news": "Actualités",
+    "latestNews": "Dernières actualités",
+    "allCategories": "Toutes les catégories",
+    "national": "National",
+    "africa": "Afrique",
+    "world": "Monde",
+    "media": "Médias",
+    "company": "Entreprise",
+    "aboutUs": "À propos",
+    "contact": "Contact",
+    "advertise": "Publicité",
+    "careers": "Carrières",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
+  },
+  "legal": {
+    "privacyTitle": "Politique de confidentialité",
+    "termsTitle": "Conditions d'utilisation",
+    "contactTitle": "Nous contacter",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "privacyIntro": "WorldView Creative Media respecte votre vie privée. Cette politique explique comment nous collectons et protégeons vos informations.",
+    "privacyCookiesTitle": "Cookies",
+    "privacyCookies": "Nous utilisons des cookies pour le fonctionnement du site, l'analyse (Google Analytics) et la publicité (Google AdSense).",
+    "privacyDataTitle": "Informations collectées",
+    "privacyData": "Nous pouvons collecter des données d'analyse, de publicité et les informations que vous envoyez via nos formulaires.",
+    "privacyThirdTitle": "Tiers",
+    "privacyThird": "Nous utilisons Google Analytics et Google AdSense, chacun avec sa propre politique de confidentialité.",
+    "termsIntro": "En utilisant WorldView Creative Media, vous acceptez ces conditions.",
+    "termsContentTitle": "Contenu",
+    "termsContent": "Les contenus d'information sont fournis à titre général. Nous visons l'exactitude sans garantie absolue.",
+    "termsAdsTitle": "Publicité",
+    "termsAds": "Le site peut afficher des publicités tierces. Nous ne sommes pas responsables du contenu des annonceurs.",
+    "contactIntro": "Nous accueillons vos signalements, partenariats et commentaires en Sierra Leone et en Afrique de l'Ouest.",
+    "contactAdvertise": "Pour la presse et la publicité, consultez notre page"
+  },
+  "article": {
+    "contentNotice": "Le contenu de l'article peut apparaître dans sa langue d'origine."
+  }
+}

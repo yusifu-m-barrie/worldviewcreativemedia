@@ -1,22 +1,26 @@
-﻿import Image from "next/image";
+﻿"use client";
+
+import Image from "next/image";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { NewsletterForm } from "@/components/home/newsletter-form";
 import { getCategoryPillClass } from "@/lib/category-styles";
 import { formatRelativeTime } from "@/lib/utils";
 import type { ArticleCard } from "@/types";
+import { useTranslations } from "@/components/i18n/locale-provider";
 
 interface TrendingNowSidebarProps {
   articles: ArticleCard[];
 }
 
 export function TrendingNowSidebar({ articles }: TrendingNowSidebarProps) {
+  const t = useTranslations();
   return (
     <aside className="space-y-6">
       <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
         <h2 className="mb-5 flex items-center gap-2 font-serif text-xl font-bold text-foreground">
           <TrendingUp className="h-5 w-5 text-red-600" />
-          Trending Now
+          {t("home.trendingNow")}
         </h2>
 
         {articles.length > 0 ? (
@@ -60,17 +64,13 @@ export function TrendingNowSidebar({ articles }: TrendingNowSidebarProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-foreground-muted">
-            No featured stories yet. Mark articles as featured in the CMS to show them here.
-          </p>
+          <p className="text-sm text-foreground-muted">{t("home.trendingEmpty")}</p>
         )}
       </div>
 
       <div className="rounded-xl bg-gray-950 p-6 text-white">
-        <h3 className="text-lg font-bold leading-tight">Get Sierra Leone news first</h3>
-        <p className="mt-2 text-sm text-white/70">
-          Free daily briefing — straight to your inbox.
-        </p>
+        <h3 className="text-lg font-bold leading-tight">{t("home.sidebarNewsletterTitle")}</h3>
+        <p className="mt-2 text-sm text-white/70">{t("home.sidebarNewsletterSubtitle")}</p>
         <div className="mt-4">
           <NewsletterForm variant="sidebar" />
         </div>

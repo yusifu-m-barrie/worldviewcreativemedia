@@ -10,9 +10,27 @@ import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { ADMIN_ROLES } from "@/config/roles";
 import { canAccessPermission, canEditArticle } from "@/lib/permissions";
 import type { AdminPermissions } from "@/lib/admin-permissions";
+import type { ContentTranslations } from "@/lib/i18n/types";
 import { Article } from "@/models/Article";
 import { Category } from "@/models/Category";
 import type { Role } from "@/config/roles";
+
+function buildArticleTranslations(formData: FormData): ContentTranslations | undefined {
+  const fr = {
+    title: (formData.get("titleFr") as string)?.trim() || undefined,
+    excerpt: (formData.get("excerptFr") as string)?.trim() || undefined,
+    content: (formData.get("contentFr") as string)?.trim() || undefined,
+  };
+  const es = {
+    title: (formData.get("titleEs") as string)?.trim() || undefined,
+    excerpt: (formData.get("excerptEs") as string)?.trim() || undefined,
+    content: (formData.get("contentEs") as string)?.trim() || undefined,
+  };
+  const translations: ContentTranslations = {};
+  if (fr.title || fr.excerpt || fr.content) translations.fr = fr;
+  if (es.title || es.excerpt || es.content) translations.es = es;
+  return Object.keys(translations).length > 0 ? translations : undefined;
+}
 
 const articleSchema = z.object({
   title: z.string().min(3),
@@ -106,6 +124,7 @@ export async function createArticle(formData: FormData) {
     publishedAt: data.status === "published" ? new Date() : undefined,
     editCount: 0,
     tags: [],
+    translations: buildArticleTranslations(formData),
   });
 
   revalidatePath("/");
@@ -201,6 +220,7 @@ export async function updateArticle(articleId: string, formData: FormData) {
 
   article.editCount = (article.editCount ?? 0) + 1;
   article.lastEditedBy = new mongoose.Types.ObjectId(session.user.id);
+  article.translations = buildArticleTranslations(formData);
 
   await article.save();
 

@@ -5,6 +5,7 @@ import { ArrowLeft, Eye } from "lucide-react";
 import { VideoPlayer } from "@/components/video/video-player";
 import { buildMetadata } from "@/lib/seo";
 import { formatDate, formatDuration } from "@/lib/utils";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getVideoBySlug } from "@/services/video.service";
 
 interface PageProps {
@@ -26,7 +27,8 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function VideoPage({ params }: PageProps) {
   const { slug } = await params;
-  const video = await getVideoBySlug(slug);
+  const { locale } = await getServerTranslations();
+  const video = await getVideoBySlug(slug, locale);
   if (!video) notFound();
 
   const v = video as {

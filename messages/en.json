@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "liveTv": "Live TV",
+    "videos": "Videos",
+    "blog": "Blog",
+    "categories": "Categories",
+    "about": "About",
+    "search": "Search",
+    "signIn": "Sign In",
+    "live": "Live"
+  },
+  "common": {
+    "viewAll": "View all",
+    "readMore": "Read more",
+    "backToNews": "Back to News",
+    "views": "views",
+    "by": "By",
+    "breaking": "Breaking",
+    "relatedStories": "Related Stories",
+    "noResults": "No articles found. Try a different search term.",
+    "searchPlaceholder": "Search news…",
+    "allRights": "All rights reserved.",
+    "advertisement": "Advertisement"
+  },
+  "home": {
+    "latestStories": "Latest Stories",
+    "trendingNow": "Trending Now",
+    "featuredStories": "Featured Stories",
+    "browseCategories": "Browse Categories",
+    "videoHighlights": "Video Highlights",
+    "newsletterTitle": "Get WorldView in your inbox",
+    "newsletterSubtitle": "Daily headlines, live TV alerts, and exclusive video journalism delivered to you.",
+    "trendingEmpty": "No featured stories yet. Mark articles as featured in the CMS to show them here.",
+    "sidebarNewsletterTitle": "Get Sierra Leone news first",
+    "sidebarNewsletterSubtitle": "Free daily briefing — straight to your inbox.",
+    "liveTvSubtitle": "Watch breaking news and special coverage live on our website — streaming from Facebook, YouTube, and TikTok.",
+    "fullLiveTv": "Full Live TV Page",
+    "filterAll": "All",
+    "noStoriesInCategory": "No stories in this category.",
+    "showAll": "Show all"
+  },
+  "news": {
+    "title": "Latest News",
+    "subtitle": "Breaking stories and in-depth reporting from Sierra Leone and West Africa",
+    "empty": "No articles published yet."
+  },
+  "blog": {
+    "title": "Blog & Opinion",
+    "subtitle": "Analysis, commentary, and voices from WorldView Creative Media"
+  },
+  "videos": {
+    "title": "Videos",
+    "subtitle": "Watch our latest video journalism and special reports"
+  },
+  "liveTv": {
+    "title": "Live TV",
+    "subtitle": "Watch WorldView live from Freetown and West Africa",
+    "upcoming": "Upcoming",
+    "replayArchive": "Replay Archive"
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Browse news by topic",
+    "articles": "articles"
+  },
+  "about": {
+    "title": "About Us",
+    "team": "Our Team"
+  },
+  "search": {
+    "title": "Search",
+    "resultsFor": "Results for \"{query}\""
+  },
+  "login": {
+    "title": "Admin Sign In",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "demoHint": "Demo: admin@worldviewcreativemedia.com"
+  },
+  "footer": {
+    "news": "News",
+    "latestNews": "Latest News",
+    "allCategories": "All Categories",
+    "national": "National",
+    "africa": "Africa",
+    "world": "World",
+    "media": "Media",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "advertise": "Advertise",
+    "careers": "Careers",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "termsTitle": "Terms of Use",
+    "contactTitle": "Contact Us",
+    "lastUpdated": "Last updated: {date}",
+    "privacyIntro": "WorldView Creative Media respects your privacy. This policy explains how we collect, use, and protect information when you visit our website.",
+    "privacyCookiesTitle": "Cookies",
+    "privacyCookies": "We use cookies for site functionality, analytics (Google Analytics), and advertising (Google AdSense). You can control cookies in your browser settings.",
+    "privacyDataTitle": "Information we collect",
+    "privacyData": "We may collect analytics data (pages visited, device type), advertising data, and information you submit via contact or newsletter forms (such as your email address).",
+    "privacyThirdTitle": "Third parties",
+    "privacyThird": "We use Google Analytics and Google AdSense. These services have their own privacy policies. We do not sell your personal information.",
+    "termsIntro": "By using WorldView Creative Media, you agree to these terms. If you do not agree, please do not use the site.",
+    "termsContentTitle": "Content",
+    "termsContent": "News, video, and live content are provided for general information. We strive for accuracy but do not guarantee completeness.",
+    "termsAdsTitle": "Advertising",
+    "termsAds": "The site may display third-party advertisements. We are not responsible for advertiser content or external links.",
+    "contactIntro": "We welcome news tips, partnership enquiries, and feedback from readers across Sierra Leone and West Africa.",
+    "contactAdvertise": "For press releases and advertising, visit our"
+  },
+  "article": {
+    "contentNotice": "Article content may appear in its original language."
+  }
+}

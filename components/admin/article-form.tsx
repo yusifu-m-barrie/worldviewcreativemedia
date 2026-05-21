@@ -20,6 +20,12 @@ export interface ArticleFormInitial {
   isBreaking: boolean;
   isFeatured: boolean;
   status: "draft" | "published";
+  titleFr?: string;
+  excerptFr?: string;
+  contentFr?: string;
+  titleEs?: string;
+  excerptEs?: string;
+  contentEs?: string;
 }
 
 interface ArticleFormProps {
@@ -120,9 +126,53 @@ export function ArticleForm({ categories, mode, articleId, initial }: ArticleFor
         onChange={setGalleryImages}
       />
       <div>
-        <label className={labelClass}>Content</label>
+        <label className={labelClass}>Content (English)</label>
         <TiptapEditor content={content} onChange={setContent} />
       </div>
+
+      <section className="space-y-4 rounded-xl border border-[#E8872A]/30 bg-[#E8872A]/5 p-4">
+        <h3 className="font-bold text-foreground">French translation</h3>
+        <div>
+          <label htmlFor="titleFr" className={labelClass}>Title (FR)</label>
+          <Input id="titleFr" name="titleFr" defaultValue={initial?.titleFr} />
+        </div>
+        <div>
+          <label htmlFor="excerptFr" className={labelClass}>Excerpt (FR)</label>
+          <Input id="excerptFr" name="excerptFr" defaultValue={initial?.excerptFr} />
+        </div>
+        <div>
+          <label htmlFor="contentFr" className={labelClass}>Content HTML (FR)</label>
+          <textarea
+            id="contentFr"
+            name="contentFr"
+            rows={4}
+            defaultValue={initial?.contentFr}
+            className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-[#2E2A86]/20 bg-muted/50 p-4">
+        <h3 className="font-bold text-foreground">Spanish translation</h3>
+        <div>
+          <label htmlFor="titleEs" className={labelClass}>Title (ES)</label>
+          <Input id="titleEs" name="titleEs" defaultValue={initial?.titleEs} />
+        </div>
+        <div>
+          <label htmlFor="excerptEs" className={labelClass}>Excerpt (ES)</label>
+          <Input id="excerptEs" name="excerptEs" defaultValue={initial?.excerptEs} />
+        </div>
+        <div>
+          <label htmlFor="contentEs" className={labelClass}>Content HTML (ES)</label>
+          <textarea
+            id="contentEs"
+            name="contentEs"
+            rows={4}
+            defaultValue={initial?.contentEs}
+            className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+      </section>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
         <label className="flex items-center gap-2 text-sm text-foreground">
           <input

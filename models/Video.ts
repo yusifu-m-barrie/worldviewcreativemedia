@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { registerModel } from "@/lib/register-model";
+import type { ContentTranslations } from "@/lib/i18n/types";
 
 export interface IVideo {
   _id: mongoose.Types.ObjectId;
@@ -19,7 +20,13 @@ export interface IVideo {
   author: mongoose.Types.ObjectId;
   /** Set when auto-published from a ended live broadcast */
   sourceLiveStreamId?: mongoose.Types.ObjectId;
+  translations?: ContentTranslations;
 }
+
+const videoLocaleSchema = new Schema(
+  { title: String, description: String },
+  { _id: false }
+);
 
 const VideoSchema = new Schema<IVideo>(
   {
@@ -38,6 +45,10 @@ const VideoSchema = new Schema<IVideo>(
     publishedAt: Date,
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     sourceLiveStreamId: { type: Schema.Types.ObjectId, ref: "LiveStream" },
+    translations: {
+      fr: { type: videoLocaleSchema, default: undefined },
+      es: { type: videoLocaleSchema, default: undefined },
+    },
   },
   { timestamps: true }
 );

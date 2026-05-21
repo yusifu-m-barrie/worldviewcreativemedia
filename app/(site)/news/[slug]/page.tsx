@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { Clock, Eye, ArrowLeft } from "lucide-react";
 import { ArticleCard } from "@/components/articles/article-card";
 import { ArticleGallery } from "@/components/articles/article-gallery";
+import { ArticleContentWithAds } from "@/components/articles/article-content-with-ads";
 import { Badge } from "@/components/ui/badge";
 import { JsonLd } from "@/components/json-ld";
 import { buildMetadata, articleJsonLd } from "@/lib/seo";
 import { absoluteUrl, formatDate } from "@/lib/utils";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getArticleBySlug, getRelatedArticles, incrementArticleViews } from "@/services/article.service";
 
 interface PageProps {
@@ -26,7 +28,8 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const { t, locale } = await getServerTranslations();
+  const article = await getArticleBySlug(slug, locale);
   if (!article) notFound();
 
   const a = article as {
@@ -46,7 +49,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   if (a._id) await incrementArticleViews(a._id);
 
-  const related = await getRelatedArticles(slug, a.category?.slug, 4);
+  const related = await getRelatedArticles(slug, a.category?.slug, 4, locale);
   const content =
     a.content ||
     `<p>${a.excerpt}</p><p>WorldView Creative Media continues to bring you in-depth coverage of this developing story. Check back for updates.</p>`;
@@ -65,7 +68,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <JsonLd data={jsonLd} />
       <Link href="/news" className="mb-6 inline-flex items-center gap-2 text-sm text-[#2E2A86] hover:underline">
         <ArrowLeft className="h-4 w-4" />
-        Back to News
+        {t("common.backToNews")}
       </Link>
       {a.category && (
         <Link href={`/category/${a.category.slug}`} className="text-xs font-bold uppercase text-[#E8872A]">
@@ -74,7 +77,7 @@ export default async function ArticlePage({ params }: PageProps) {
       )}
       <h1 className="mt-2 text-3xl font-bold text-foreground lg:text-4xl">{a.title}</h1>
       <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-foreground-muted">
-        {a.isBreaking && <Badge variant="live">Breaking</Badge>}
+        {a.isBreaking && <Badge variant="live">{t("common.breaking")}</Badge>}
         {a.publishedAt && (
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
@@ -84,21 +87,25 @@ export default async function ArticlePage({ params }: PageProps) {
         {a.viewCount != null && (
           <span className="flex items-center gap-1">
             <Eye className="h-4 w-4" />
-            {a.viewCount.toLocaleString()} views
+            {a.viewCount.toLocaleString()} {t("common.views")}
           </span>
         )}
-        {a.author && <span>By {a.author.name}</span>}
+        {a.author && (
+          <span>
+            {t("common.by")} {a.author.name}
+          </span>
+        )}
       </div>
       {a.featuredImage && (
         <div className="relative mt-8 aspect-video overflow-hidden rounded-2xl">
           <Image src={a.featuredImage} alt={a.title} fill className="object-cover" priority sizes="(max-width: 896px) 100vw, 896px" />
         </div>
       )}
-      <div className="prose-article mt-8 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: content }} />
+      <ArticleContentWithAds html={content} />
       {a.gallery && a.gallery.length > 0 && <ArticleGallery images={a.gallery} title={a.title} />}
       {related.length > 0 && (
         <section className="mt-16 border-t border-gray-200 pt-10 dark:border-gray-800">
-          <h2 className="mb-6 text-xl font-bold text-[#2E2A86] dark:text-white">Related Stories</h2>
+          <h2 className="mb-6 text-xl font-bold text-[#2E2A86] dark:text-white">{t("common.relatedStories")}</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {related.map((r) => (
               <ArticleCard key={r._id} article={r} variant="compact" />

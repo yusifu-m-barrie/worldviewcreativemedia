@@ -1,6 +1,7 @@
 import { CategoriesGrid } from "@/components/home/categories-grid";
 import { SectionHeading } from "@/components/home/section-heading";
 import { buildMetadata } from "@/lib/seo";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getCategoriesWithCounts } from "@/services/category.service";
 
 export const metadata = buildMetadata({
@@ -10,17 +11,18 @@ export const metadata = buildMetadata({
 });
 
 export default async function CategoriesPage() {
-  const categories = await getCategoriesWithCounts();
+  const { t, locale } = await getServerTranslations();
+  const categories = await getCategoriesWithCounts(locale);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
       <SectionHeading
-        title="Browse Categories"
-        subtitle="Pick a topic to read the latest stories"
+        title={t("categories.title")}
+        subtitle={t("categories.subtitle")}
         href="/news"
-        linkLabel="All news"
+        linkLabel={t("nav.news")}
       />
-      <CategoriesGrid categories={categories} />
+      <CategoriesGrid categories={categories} articlesLabel={t("categories.articles")} />
     </div>
   );
 }

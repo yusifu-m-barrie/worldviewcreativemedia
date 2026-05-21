@@ -11,6 +11,7 @@ interface CategoryItem {
 
 interface CategoriesGridProps {
   categories: CategoryItem[];
+  articlesLabel?: string;
 }
 
 const colors = [
@@ -20,7 +21,7 @@ const colors = [
   "from-[#1a1760] to-[#2E2A86]",
 ];
 
-export function CategoriesGrid({ categories }: CategoriesGridProps) {
+export function CategoriesGrid({ categories, articlesLabel = "articles" }: CategoriesGridProps) {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
       {categories.map((cat, i) => (
@@ -37,7 +38,9 @@ export function CategoriesGrid({ categories }: CategoriesGridProps) {
           >
             <h3 className="font-bold">{cat.name}</h3>
             {cat.count != null && (
-              <p className="mt-1 text-sm text-white/70">{cat.count} stories</p>
+              <p className="mt-1 text-sm text-white/70">
+                {cat.count} {articlesLabel}
+              </p>
             )}
           </Link>
         </motion.div>

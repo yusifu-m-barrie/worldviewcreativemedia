@@ -1,4 +1,5 @@
 import { siteConfig } from "@/config/site";
+import type { ContentTranslations } from "@/lib/i18n/types";
 
 export const ABOUT_SETTINGS_KEY = "about";
 
@@ -16,6 +17,7 @@ export interface AboutPageValue {
   description: string;
   mission: string;
   teamMembers: TeamMember[];
+  translations?: ContentTranslations;
 }
 
 export const defaultAboutPage: AboutPageValue = {

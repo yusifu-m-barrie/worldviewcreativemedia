@@ -66,6 +66,12 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
           isBreaking: article.isBreaking,
           isFeatured: article.isFeatured,
           status: article.status === "published" ? "published" : "draft",
+          titleFr: article.translationsFr?.title,
+          excerptFr: article.translationsFr?.excerpt,
+          contentFr: article.translationsFr?.content,
+          titleEs: article.translationsEs?.title,
+          excerptEs: article.translationsEs?.excerpt,
+          contentEs: article.translationsEs?.content,
         }}
       />
     </div>

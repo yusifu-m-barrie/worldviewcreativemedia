@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { cloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 import {
   MAX_VIDEO_DURATION_SEC,
+  formatMaxVideoDuration,
   getOptimizedVideoPlaybackUrl,
   getVideoThumbnailUrl,
   isEmbedPlatformUrl,
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
     const result = await cloudinary.uploader.upload(sourceUrl, {
       resource_type: "video",
       folder: "worldview/videos",
-      timeout: 300000,
+      timeout: 600000,
     });
 
     const duration = result.duration ?? 0;
@@ -83,7 +84,7 @@ export async function POST(req: Request) {
         /* ignore */
       }
       return NextResponse.json(
-        { error: "Video at this URL is longer than 5 minutes" },
+        { error: `Video at this URL is longer than ${formatMaxVideoDuration()}` },
         { status: 400 }
       );
     }

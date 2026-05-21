@@ -6,9 +6,10 @@ import type { LiveStreamCard } from "@/types";
 
 interface LiveTVSectionProps {
   stream: LiveStreamCard | null;
+  labels?: { subtitle: string; cta: string; badge?: string };
 }
 
-export async function LiveTVSection({ stream }: LiveTVSectionProps) {
+export async function LiveTVSection({ stream, labels }: LiveTVSectionProps) {
   const settings = await getSiteSettings();
 
   return (
@@ -23,15 +24,16 @@ export async function LiveTVSection({ stream }: LiveTVSectionProps) {
           compact
         />
         <div className="flex flex-col justify-center p-8 text-white">
-          <span className="text-sm font-bold uppercase text-[#E8872A]">Live TV</span>
+          <span className="text-sm font-bold uppercase text-[#E8872A]">{labels?.badge ?? "Live TV"}</span>
           <h3 className="mt-2 text-2xl font-bold lg:text-3xl">
             {stream?.title || "WorldView Creative Media Live"}
           </h3>
           <p className="mt-3 text-white/70">
-            Watch breaking news and special coverage live on our website — streaming from Facebook, YouTube, and TikTok.
+            {labels?.subtitle ??
+              "Watch breaking news and special coverage live on our website — streaming from Facebook, YouTube, and TikTok."}
           </p>
           <Button asChild variant="orange" className="mt-6 w-fit">
-            <Link href="/live-tv">Full Live TV Page</Link>
+            <Link href="/live-tv">{labels?.cta ?? "Full Live TV Page"}</Link>
           </Button>
         </div>
       </div>

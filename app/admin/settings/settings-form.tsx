@@ -128,6 +128,53 @@ export function SettingsForm({ settings }: { settings: SiteSettingsValue }) {
       </section>
 
       <section className={`space-y-4 ${adminPanel}`}>
+        <h2 className={adminSectionTitle}>Google AdSense</h2>
+        <p className="text-sm text-foreground-muted">
+          Up to 5 ad slots (homepage hero, sidebar, mid-content, article mid, footer). Leave slot IDs empty to hide a placement.
+        </p>
+        <label className="flex items-center gap-2 text-sm text-foreground">
+          <input
+            type="checkbox"
+            name="adsenseEnabled"
+            defaultChecked={settings.ads?.enabled !== false}
+            className="rounded"
+          />
+          Enable AdSense
+        </label>
+        <div>
+          <label htmlFor="adsenseClientId" className={adminLabel}>Publisher ID (ca-pub-…)</label>
+          <Input
+            id="adsenseClientId"
+            name="adsenseClientId"
+            defaultValue={settings.ads?.adsenseClientId || ""}
+            placeholder="ca-pub-XXXXXXXXXXXXXXXX"
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="slotHomepageHero" className={adminLabel}>Homepage — below hero</label>
+            <Input id="slotHomepageHero" name="slotHomepageHero" defaultValue={settings.ads?.slots?.homepageHero || ""} placeholder="1234567890" />
+          </div>
+          <div>
+            <label htmlFor="slotHomepageSidebar" className={adminLabel}>Homepage — sidebar</label>
+            <Input id="slotHomepageSidebar" name="slotHomepageSidebar" defaultValue={settings.ads?.slots?.homepageSidebar || ""} placeholder="1234567890" />
+          </div>
+          <div>
+            <label htmlFor="slotHomepageMid" className={adminLabel}>Homepage — mid content</label>
+            <Input id="slotHomepageMid" name="slotHomepageMid" defaultValue={settings.ads?.slots?.homepageMid || ""} placeholder="1234567890" />
+          </div>
+          <div>
+            <label htmlFor="slotArticleMid" className={adminLabel}>Articles — between paragraphs</label>
+            <Input id="slotArticleMid" name="slotArticleMid" defaultValue={settings.ads?.slots?.articleMid || ""} placeholder="1234567890" />
+          </div>
+          <div>
+            <label htmlFor="slotFooter" className={adminLabel}>Footer — site-wide</label>
+            <Input id="slotFooter" name="slotFooter" defaultValue={settings.ads?.slots?.footer || ""} placeholder="1234567890" />
+          </div>
+        </div>
+      </section>
+
+      <section className={`space-y-4 ${adminPanel}`}>
         <h2 className={adminSectionTitle}>Analytics</h2>
         <div>
           <label htmlFor="googleAnalyticsId" className={adminLabel}>

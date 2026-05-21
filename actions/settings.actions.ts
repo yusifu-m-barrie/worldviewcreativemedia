@@ -33,6 +33,18 @@ const settingsSchema = z.object({
     .refine((val) => !val || val.trim() === "" || /^(G-[A-Z0-9]+|UA-\d+-\d+)$/i.test(val.trim()), {
       message: "Use a valid ID like G-XXXXXXXXXX or UA-XXXXXXXX-X",
     }),
+  adsenseEnabled: z.coerce.boolean().optional(),
+  adsenseClientId: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.trim() === "" || /^ca-pub-\d+$/i.test(val.trim()), {
+      message: "Use a valid publisher ID like ca-pub-XXXXXXXXXX",
+    }),
+  slotHomepageHero: z.string().optional(),
+  slotHomepageSidebar: z.string().optional(),
+  slotHomepageMid: z.string().optional(),
+  slotArticleMid: z.string().optional(),
+  slotFooter: z.string().optional(),
 });
 
 export async function updateSiteSettings(formData: FormData) {
@@ -64,6 +76,13 @@ export async function updateSiteSettings(formData: FormData) {
     liveTiktokProfileUrl: formData.get("liveTiktokProfileUrl") || "",
     liveOfflineMessage: formData.get("liveOfflineMessage"),
     googleAnalyticsId: formData.get("googleAnalyticsId") || undefined,
+    adsenseEnabled: formData.get("adsenseEnabled") === "on",
+    adsenseClientId: formData.get("adsenseClientId") || "",
+    slotHomepageHero: formData.get("slotHomepageHero") || "",
+    slotHomepageSidebar: formData.get("slotHomepageSidebar") || "",
+    slotHomepageMid: formData.get("slotHomepageMid") || "",
+    slotArticleMid: formData.get("slotArticleMid") || "",
+    slotFooter: formData.get("slotFooter") || "",
   });
 
   if (!parsed.success) {
@@ -94,6 +113,17 @@ export async function updateSiteSettings(formData: FormData) {
     },
     analytics: {
       googleAnalyticsId: d.googleAnalyticsId?.trim() || undefined,
+    },
+    ads: {
+      enabled: d.adsenseEnabled ?? true,
+      adsenseClientId: d.adsenseClientId?.trim() || undefined,
+      slots: {
+        homepageHero: d.slotHomepageHero?.trim() || undefined,
+        homepageSidebar: d.slotHomepageSidebar?.trim() || undefined,
+        homepageMid: d.slotHomepageMid?.trim() || undefined,
+        articleMid: d.slotArticleMid?.trim() || undefined,
+        footer: d.slotFooter?.trim() || undefined,
+      },
     },
   };
 

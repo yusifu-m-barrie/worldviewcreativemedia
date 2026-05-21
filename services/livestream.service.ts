@@ -1,5 +1,7 @@
 import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { resolveLiveEmbed, type LivePlatform } from "@/lib/live-embed";
+import type { Locale } from "@/lib/i18n/config";
+import { localizeLiveStream } from "@/lib/i18n/localize";
 import { demoLiveStream } from "@/lib/demo-data";
 import { getSiteSettings } from "@/services/settings.service";
 import { LiveStream } from "@/models/LiveStream";
@@ -49,12 +51,12 @@ function mapStream(
   };
 }
 
-export async function getCurrentLiveStream(): Promise<LiveStreamCard | null> {
+export async function getCurrentLiveStream(locale: Locale = "en"): Promise<LiveStreamCard | null> {
   const settings = await getSiteSettings();
 
   if (!isDbConfigured()) {
     const demo = { ...demoLiveStream, platform: "youtube" as LivePlatform };
-    return mapStream(
+    const card = mapStream(
       {
         _id: demo._id,
         title: demo.title,
@@ -67,11 +69,12 @@ export async function getCurrentLiveStream(): Promise<LiveStreamCard | null> {
       settings.live.facebookPageUrl,
       settings.live.tiktokProfileUrl
     );
+    return localizeLiveStream(card, locale) as LiveStreamCard;
   }
 
   if (!(await tryConnectDB())) {
     const demo = { ...demoLiveStream, platform: "youtube" as LivePlatform };
-    return mapStream(
+    const card = mapStream(
       {
         _id: demo._id,
         title: demo.title,
@@ -84,11 +87,16 @@ export async function getCurrentLiveStream(): Promise<LiveStreamCard | null> {
       settings.live.facebookPageUrl,
       settings.live.tiktokProfileUrl
     );
+    return localizeLiveStream(card, locale) as LiveStreamCard;
   }
 
   const live = await LiveStream.findOne({ isLive: true }).sort({ updatedAt: -1 }).lean();
   if (live) {
-    return mapStream(live, settings.live.facebookPageUrl, settings.live.tiktokProfileUrl);
+    const card = mapStream(live, settings.live.facebookPageUrl, settings.live.tiktokProfileUrl);
+    return localizeLiveStream(
+      { ...card, description: live.description },
+      locale
+    ) as LiveStreamCard;
   }
   return null;
 }

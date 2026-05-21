@@ -61,7 +61,7 @@ export async function createVideo(formData: FormData) {
   const data = parsed.data;
 
   if (data.duration && data.duration > MAX_VIDEO_DURATION_SEC) {
-    return { error: "Video duration cannot exceed 5 minutes" };
+    return { error: "Video duration cannot exceed 15 minutes" };
   }
 
   if (!data.videoUrl && !data.embedUrl) {

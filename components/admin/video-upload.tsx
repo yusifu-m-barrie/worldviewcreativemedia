@@ -1,17 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Loader2, Link2, AlertCircle } from "lucide-react";
+import { Upload, Loader2, Link2, AlertCircle, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
   MAX_VIDEO_DURATION_SEC,
   MAX_VIDEO_FILE_BYTES,
+  VIDEO_CHUNK_SIZE_BYTES,
   readLocalVideoDuration,
   formatVideoDuration,
+  formatMaxVideoDuration,
   getOptimizedVideoPlaybackUrl,
   getVideoThumbnailUrl,
+  getPublicCloudName,
   isEmbedPlatformUrl,
   parseCloudinaryVideoUrl,
   type CloudinaryUploadResult,
@@ -26,6 +29,58 @@ interface VideoUploadProps {
   onClear?: () => void;
 }
 
+interface UploadSignature {
+  signature: string;
+  timestamp: number;
+  apiKey: string;
+  cloudName: string;
+  folder: string;
+  chunkSize: number;
+  useChunks: boolean;
+  uploadPreset: string | null;
+}
+
+function isVideoFile(file: File): boolean {
+  if (file.type.startsWith("video/")) return true;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return ["mp4", "mov", "webm", "avi", "mkv", "m4v", "mpeg", "mpg"].includes(ext);
+}
+
+function parseCloudinaryXhrError(xhr: XMLHttpRequest): string {
+  try {
+    const data = JSON.parse(xhr.responseText) as {
+      error?: string | { message?: string };
+    };
+    if (typeof data.error === "string") return data.error;
+    if (data.error && typeof data.error === "object" && data.error.message) {
+      return data.error.message;
+    }
+  } catch {
+    /* ignore */
+  }
+  return `Upload failed (${xhr.status}). Check Cloudinary API keys and try again.`;
+}
+
+function parseCloudinaryUploadResponse(
+  data: Record<string, unknown>,
+  cloudName: string
+): CloudinaryUploadResult {
+  const pid = data.public_id as string;
+  const dur = Math.round((data.duration as number) || 0);
+  const playback =
+    (data.eager as { secure_url?: string }[] | undefined)?.[0]?.secure_url ||
+    (data.secure_url as string);
+
+  return {
+    url: getOptimizedVideoPlaybackUrl(pid) || playback,
+    publicId: pid,
+    duration: dur,
+    thumbnail: getVideoThumbnailUrl(pid) || `https://res.cloudinary.com/${cloudName}/video/upload/so_2,w_1280,h_720,c_fill,q_auto,f_jpg/${pid}.jpg`,
+    width: data.width as number | undefined,
+    height: data.height as number | undefined,
+  };
+}
+
 export function VideoUpload({
   value,
   publicId,
@@ -38,9 +93,132 @@ export function VideoUpload({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [videoUrlInput, setVideoUrlInput] = useState("");
+  const [useChunked, setUseChunked] = useState(false);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  async function fetchUploadSignature(fileSize: number): Promise<UploadSignature> {
+    const res = await fetch("/api/upload/video-signature", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder: "worldview/videos", fileSize }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Could not start upload");
+    return data as UploadSignature;
+  }
+
+  /** Upload straight to Cloudinary (signed) — bypasses server size limits, best for slow internet */
+  function uploadDirectToCloudinary(
+    file: File,
+    videoDuration: number,
+    sig: UploadSignature
+  ): Promise<CloudinaryUploadResult> {
+    const useChunks = sig.useChunks;
+    setUseChunked(useChunks);
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = `https://api.cloudinary.com/v1_1/${sig.cloudName}/video/upload`;
+      const startedAt = Date.now();
+
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          setProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText) as Record<string, unknown>;
+            const dur = Math.round((data.duration as number) || videoDuration);
+
+            if (dur > MAX_VIDEO_DURATION_SEC) {
+              reject(new Error(`Video exceeds ${formatMaxVideoDuration()}`));
+              return;
+            }
+
+            resolve(parseCloudinaryUploadResponse(data, sig.cloudName));
+          } catch {
+            reject(new Error("Invalid response from Cloudinary"));
+          }
+        } else {
+          reject(new Error(parseCloudinaryXhrError(xhr)));
+        }
+      });
+
+      xhr.addEventListener("error", () =>
+        reject(new Error("Network error — check your connection and try again"))
+      );
+      xhr.addEventListener("timeout", () =>
+        reject(new Error("Upload timed out — try again on a stable connection"))
+      );
+
+      xhr.timeout = 600000;
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", sig.apiKey);
+      formData.append("timestamp", String(sig.timestamp));
+      formData.append("signature", sig.signature);
+      formData.append("folder", sig.folder);
+
+      if (useChunks) {
+        formData.append("chunk_size", String(sig.chunkSize));
+      }
+
+      if (sig.uploadPreset) {
+        formData.append("upload_preset", sig.uploadPreset);
+      }
+
+      xhr.open("POST", url);
+      xhr.send(formData);
+
+      if (useChunks) {
+        const elapsed = Math.round((Date.now() - startedAt) / 1000);
+        if (elapsed > 2) {
+          toast.info("Uploading in chunks — works better on slow connections", { duration: 4000 });
+        }
+      }
+    });
+  }
+
+  /** Unsigned preset path (optional fallback) */
+  async function uploadWithPreset(file: File, videoDuration: number, preset: string, cloudName: string) {
+    return new Promise<CloudinaryUploadResult>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
+
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText) as Record<string, unknown>;
+            resolve(parseCloudinaryUploadResponse(data, cloudName));
+          } catch {
+            reject(new Error("Invalid Cloudinary response"));
+          }
+        } else {
+          reject(new Error("Preset upload failed — using signed upload instead"));
+        }
+      });
+
+      xhr.addEventListener("error", () => reject(new Error("Network error")));
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", preset);
+      formData.append("folder", "worldview/videos");
+      if (file.size > VIDEO_CHUNK_SIZE_BYTES) {
+        formData.append("chunk_size", String(VIDEO_CHUNK_SIZE_BYTES));
+      }
+
+      xhr.open("POST", url);
+      xhr.send(formData);
+    });
+  }
 
   async function uploadViaApi(file: File, videoDuration: number) {
     const formData = new FormData();
@@ -57,71 +235,27 @@ export function VideoUpload({
     return data as CloudinaryUploadResult & { rawUrl?: string };
   }
 
-  /** Direct to Cloudinary — no server body limit, supports large files */
-  async function uploadDirectToCloudinary(
-    file: File,
-    videoDuration: number
-  ): Promise<CloudinaryUploadResult> {
-    if (!cloudName || !uploadPreset) {
-      return uploadViaApi(file, videoDuration);
+  async function uploadFileToCloudinary(file: File, videoDuration: number) {
+    const sig = await fetchUploadSignature(file.size);
+
+    try {
+      return await uploadDirectToCloudinary(file, videoDuration, sig);
+    } catch (signedErr) {
+      const preset = sig.uploadPreset;
+      if (preset) {
+        try {
+          return await uploadWithPreset(file, videoDuration, preset, sig.cloudName);
+        } catch {
+          /* fall through */
+        }
+      }
+
+      if (file.size <= 4 * 1024 * 1024) {
+        return await uploadViaApi(file, videoDuration);
+      }
+
+      throw signedErr;
     }
-
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      const url = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
-
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) {
-          setProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      });
-
-      xhr.addEventListener("load", () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const data = JSON.parse(xhr.responseText);
-            const pid = data.public_id as string;
-            const dur = Math.round((data.duration as number) || videoDuration);
-
-            if (dur > MAX_VIDEO_DURATION_SEC) {
-              reject(new Error("Video exceeds 5 minutes"));
-              return;
-            }
-
-            const playback = data.eager?.[0]?.secure_url || data.secure_url;
-            resolve({
-              url: playback,
-              publicId: pid,
-              duration: dur,
-              thumbnail: `https://res.cloudinary.com/${cloudName}/video/upload/so_2,w_1280,h_720,c_fill,q_auto,f_jpg/${pid}.jpg`,
-              width: data.width,
-              height: data.height,
-            });
-          } catch {
-            reject(new Error("Invalid response from Cloudinary"));
-          }
-        } else {
-          try {
-            const err = JSON.parse(xhr.responseText);
-            reject(new Error(err.error?.message || "Cloudinary upload failed"));
-          } catch {
-            reject(new Error("Cloudinary upload failed"));
-          }
-        }
-      });
-
-      xhr.addEventListener("error", () => reject(new Error("Network error during upload")));
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
-      formData.append("folder", "worldview/videos");
-      formData.append("resource_type", "video");
-      formData.append("eager", "sp_hd");
-
-      xhr.open("POST", url);
-      xhr.send(formData);
-    });
   }
 
   async function importVideoUrlToCloudinary(url: string) {
@@ -178,7 +312,7 @@ export function VideoUpload({
 
     setUploading(true);
     try {
-      const duration = await new Promise<number>((resolve, reject) => {
+      const urlDuration = await new Promise<number>((resolve, reject) => {
         const video = document.createElement("video");
         video.preload = "metadata";
         video.crossOrigin = "anonymous";
@@ -187,15 +321,15 @@ export function VideoUpload({
         video.src = url;
       });
 
-      if (duration > MAX_VIDEO_DURATION_SEC) {
-        toast.error(`Video is ${formatVideoDuration(duration)} long. Maximum is 5:00.`);
+      if (urlDuration > MAX_VIDEO_DURATION_SEC) {
+        toast.error(`Video is ${formatVideoDuration(urlDuration)} long. Maximum is ${formatMaxVideoDuration()}.`);
         return;
       }
 
       onChange({
         url,
         publicId: "",
-        duration: Math.round(duration),
+        duration: Math.round(urlDuration),
       });
       setVideoUrlInput("");
       toast.success("Video URL added");
@@ -208,20 +342,21 @@ export function VideoUpload({
   }
 
   async function handleFile(file: File) {
-    if (!file.type.startsWith("video/")) {
+    if (!isVideoFile(file)) {
       toast.error("Please select a video file (MP4, MOV, WebM, etc.)");
       return;
     }
 
     if (file.size > MAX_VIDEO_FILE_BYTES) {
       toast.error(
-        `File is too large (max ${Math.round(MAX_VIDEO_FILE_BYTES / 1024 / 1024)}MB). Try compressing the video.`
+        `File is too large (max ${Math.round(MAX_VIDEO_FILE_BYTES / 1024 / 1024)}MB). Compress the video or shorten it.`
       );
       return;
     }
 
     setUploading(true);
     setProgress(0);
+    setUseChunked(false);
 
     try {
       const videoDuration = await readLocalVideoDuration(file);
@@ -233,50 +368,62 @@ export function VideoUpload({
 
       if (videoDuration > MAX_VIDEO_DURATION_SEC) {
         toast.error(
-          `Video is ${formatVideoDuration(videoDuration)} long. Maximum allowed is 5:00.`
+          `Video is ${formatVideoDuration(videoDuration)} long. Maximum allowed is ${formatMaxVideoDuration()}.`
         );
         return;
       }
 
-      toast.info(`Uploading ${formatVideoDuration(videoDuration)} video…`);
+      toast.info(
+        file.size > VIDEO_CHUNK_SIZE_BYTES
+          ? `Uploading ${formatVideoDuration(videoDuration)} video in chunks (better on slow Wi‑Fi)…`
+          : `Uploading ${formatVideoDuration(videoDuration)} video directly to Cloudinary…`,
+        { duration: 5000 }
+      );
 
-      const result = await uploadDirectToCloudinary(file, videoDuration);
+      const result = await uploadFileToCloudinary(file, videoDuration);
       onChange(result);
-
-      if (result.thumbnail && !thumbnail) {
-        /* parent can set thumbnail from result */
-      }
-
       toast.success("Video uploaded successfully");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+      console.error("Video upload error:", err);
     } finally {
       setUploading(false);
       setProgress(0);
+      setUseChunked(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
+  const publicCloud = getPublicCloudName();
+
   return (
     <div className="space-y-3 rounded-lg border border-dashed border-[#2E2A86]/30 bg-[#2E2A86]/5 p-4 dark:border-[#E8872A]/30 dark:bg-[#E8872A]/5">
       <div>
-        <label className="block text-sm font-medium text-foreground">
-          Video upload
-        </label>
-        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-          Upload a file, paste a direct video URL (.mp4), or a Cloudinary link — max{" "}
-          <strong>5 minutes</strong>.
+        <label className="block text-sm font-medium text-foreground">Video upload</label>
+        <p className="mt-0.5 text-xs text-foreground-muted">
+          Uploads go <strong>directly to Cloudinary</strong> from your browser (fast on slow internet).
+          Max length: <strong>{formatMaxVideoDuration()}</strong>.
         </p>
       </div>
 
-      {!cloudName || !uploadPreset ? (
+      <div className="flex gap-2 rounded-md bg-emerald-50 p-3 text-xs text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <Wifi className="h-4 w-4 shrink-0" />
+        <p>
+          Large files upload in {Math.round(VIDEO_CHUNK_SIZE_BYTES / 1024 / 1024)}MB chunks so metered or
+          slow connections stay stable. Keep this tab open until the progress bar reaches 100%.
+        </p>
+      </div>
+
+      {!publicCloud ? (
         <div className="flex gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>
-            Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code>{" "}
-            and <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET</code>{" "}
-            to <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">.env.local</code> for faster direct uploads.
-            Server upload is used as fallback (smaller files work best).
+            Add{" "}
+            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code>{" "}
+            to <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">.env.local</code> (same as{" "}
+            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">CLOUDINARY_CLOUD_NAME</code>). Signed
+            upload still works via the server if Cloudinary keys are set.
           </p>
         </div>
       ) : null}
@@ -292,7 +439,7 @@ export function VideoUpload({
             className="aspect-video w-full"
           />
           <div className="flex items-center justify-between bg-gray-100 px-3 py-2 text-xs dark:bg-gray-900">
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-foreground-muted">
               {duration ? formatVideoDuration(duration) : "Ready"}
               {publicId ? ` · ${publicId.split("/").pop()}` : ""}
             </span>
@@ -312,7 +459,7 @@ export function VideoUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.mov,.webm"
+        accept="video/*,.mp4,.mov,.webm,.avi,.mkv,.m4v"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -320,10 +467,8 @@ export function VideoUpload({
         }}
       />
 
-      <div className="space-y-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-          Or paste video URL
-        </label>
+      <div className="space-y-2 border-t border-border pt-3">
+        <label className="block text-xs font-medium text-foreground">Or paste video URL</label>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             value={videoUrlInput}
@@ -348,9 +493,6 @@ export function VideoUpload({
             Use URL
           </Button>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Direct .mp4 links play from the source. Other URLs are imported to Cloudinary automatically.
-        </p>
       </div>
 
       <Button
@@ -365,15 +507,20 @@ export function VideoUpload({
         ) : (
           <Upload className="mr-2 h-4 w-4" />
         )}
-        {uploading ? `Uploading… ${progress}%` : "Upload video file (max 5 min)"}
+        {uploading
+          ? `Uploading… ${progress}%${useChunked ? " (chunked)" : ""}`
+          : `Upload video file (max ${formatMaxVideoDuration()})`}
       </Button>
 
-      {uploading && progress > 0 && (
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
-          <div
-            className="h-full bg-[#E8872A] transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+      {uploading && (
+        <div className="space-y-1">
+          <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+            <div
+              className="h-full bg-[#E8872A] transition-all duration-300"
+              style={{ width: `${Math.max(progress, 2)}%` }}
+            />
+          </div>
+          <p className="text-center text-xs text-foreground-muted">{progress}% — do not close this page</p>
         </div>
       )}
     </div>

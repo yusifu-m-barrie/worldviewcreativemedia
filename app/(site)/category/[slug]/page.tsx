@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/articles/article-card";
 import { SectionHeading } from "@/components/home/section-heading";
 import { buildMetadata } from "@/lib/seo";
 import { getCategoryBySlug } from "@/services/category.service";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getPublishedArticles } from "@/services/article.service";
 
 interface PageProps {
@@ -24,8 +25,13 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params;
-  const cat = await getCategoryBySlug(slug);
-  const { data: articles, total } = await getPublishedArticles({ category: slug, limit: 24 });
+  const { t, locale } = await getServerTranslations();
+  const cat = await getCategoryBySlug(slug, locale);
+  const { data: articles, total } = await getPublishedArticles({
+    category: slug,
+    limit: 24,
+    locale,
+  });
 
   if (!cat && !articles.length) notFound();
 

@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            "Use the video uploader on Admin → Videos. Videos upload directly to Cloudinary (max 5 min).",
+            "Use the video uploader on Admin → Videos. Videos upload directly to Cloudinary (max 15 min).",
         },
         { status: 400 }
       );

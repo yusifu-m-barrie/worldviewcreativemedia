@@ -1,5 +1,9 @@
 import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { demoArticles } from "@/lib/demo-data";
+import { getCatalogArticle } from "@/lib/i18n/catalog";
+import type { Locale } from "@/lib/i18n/config";
+import { localizeArticleCard, localizeArticleDetail } from "@/lib/i18n/localize";
+import type { LocalizedLocale } from "@/lib/i18n/types";
 import { Article } from "@/models/Article";
 import type { ArticleCard, PaginatedResult } from "@/types";
 
@@ -9,11 +13,13 @@ function getDemoArticlesResult(
     featured?: boolean;
     breaking?: boolean;
     search?: string;
+    locale?: Locale;
   },
   page: number,
   limit: number,
   skip: number
 ): PaginatedResult<ArticleCard> {
+  const locale = options.locale || "en";
   let filtered = [...demoArticles];
   if (options.category) {
     filtered = filtered.filter((a) => a.category?.slug === options.category);
@@ -26,8 +32,11 @@ function getDemoArticlesResult(
       (a) => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q)
     );
   }
+  const data = filtered
+    .slice(skip, skip + limit)
+    .map((a) => localizeArticleCard(a, locale));
   return {
-    data: filtered.slice(skip, skip + limit),
+    data,
     total: filtered.length,
     page,
     totalPages: Math.ceil(filtered.length / limit) || 1,
@@ -54,6 +63,7 @@ function mapArticle(doc: Record<string, unknown>): ArticleCard {
     isFeatured: doc.isFeatured as boolean,
     viewCount: doc.viewCount as number,
     region: doc.region as string | undefined,
+    translations: doc.translations as ArticleCard["translations"],
   };
 }
 
@@ -64,7 +74,9 @@ export async function getPublishedArticles(options: {
   featured?: boolean;
   breaking?: boolean;
   search?: string;
+  locale?: Locale;
 }): Promise<PaginatedResult<ArticleCard>> {
+  const locale = options.locale || "en";
   const page = options.page || 1;
   const limit = options.limit || 12;
   const skip = (page - 1) * limit;
@@ -82,7 +94,6 @@ export async function getPublishedArticles(options: {
   if (options.breaking) query.isBreaking = true;
   if (options.search) query.$text = { $search: options.search };
 
-  let categoryId: string | undefined;
   if (options.category) {
     const { Category } = await import("@/models/Category");
     const cat = await Category.findOne({ slug: options.category });
@@ -101,20 +112,51 @@ export async function getPublishedArticles(options: {
   ]);
 
   return {
-    data: articles.map((a) => mapArticle(a as unknown as Record<string, unknown>)),
+    data: articles.map((a) =>
+      localizeArticleCard(mapArticle(a as unknown as Record<string, unknown>), locale)
+    ),
     total,
     page,
     totalPages: Math.ceil(total / limit) || 1,
   };
 }
 
-export async function getArticleBySlug(slug: string) {
+function buildDemoArticleDetail(slug: string, locale: Locale) {
+  const card = demoArticles.find((a) => a.slug === slug);
+  if (!card) return null;
+
+  const enContent = `<p>${card.excerpt}</p><p>WorldView Creative Media continues to bring you in-depth coverage of this developing story. Check back for updates.</p>`;
+  let content = enContent;
+  if (locale !== "en") {
+    const cat = getCatalogArticle(slug, locale as LocalizedLocale);
+    if (cat?.content) content = cat.content;
+  }
+
+  return localizeArticleDetail(
+    {
+      _id: card._id,
+      title: card.title,
+      slug: card.slug,
+      excerpt: card.excerpt,
+      content,
+      featuredImage: card.featuredImage,
+      category: card.category,
+      author: card.author,
+      publishedAt: card.publishedAt,
+      isBreaking: card.isBreaking,
+      viewCount: card.viewCount,
+    },
+    locale
+  );
+}
+
+export async function getArticleBySlug(slug: string, locale: Locale = "en") {
   if (!isDbConfigured()) {
-    return demoArticles.find((a) => a.slug === slug) || null;
+    return buildDemoArticleDetail(slug, locale);
   }
 
   if (!(await tryConnectDB())) {
-    return demoArticles.find((a) => a.slug === slug) || null;
+    return buildDemoArticleDetail(slug, locale);
   }
 
   const article = await Article.findOne({ slug, status: "published" })
@@ -124,17 +166,19 @@ export async function getArticleBySlug(slug: string) {
     .lean();
 
   if (!article) return null;
-  return article;
+  return localizeArticleDetail(article as unknown as Record<string, unknown>, locale);
 }
 
 export async function getRelatedArticles(
   slug: string,
   categorySlug?: string,
-  limit = 4
+  limit = 4,
+  locale: Locale = "en"
 ): Promise<ArticleCard[]> {
   const result = await getPublishedArticles({
     category: categorySlug,
     limit: limit + 1,
+    locale,
   });
   return result.data.filter((a) => a.slug !== slug).slice(0, limit);
 }
@@ -157,6 +201,8 @@ export interface ArticleAdminEdit {
   isBreaking: boolean;
   isFeatured: boolean;
   status: "draft" | "published" | "scheduled" | "archived";
+  translationsFr?: { title?: string; excerpt?: string; content?: string };
+  translationsEs?: { title?: string; excerpt?: string; content?: string };
 }
 
 export async function getArticleForAdminEdit(id: string): Promise<ArticleAdminEdit | null> {
@@ -169,6 +215,11 @@ export async function getArticleForAdminEdit(id: string): Promise<ArticleAdminEd
   const status = article.status as ArticleAdminEdit["status"];
   const editableStatus: ArticleAdminEdit["status"] =
     status === "published" || status === "draft" ? status : "draft";
+
+  const tr = article.translations as {
+    fr?: { title?: string; excerpt?: string; content?: string };
+    es?: { title?: string; excerpt?: string; content?: string };
+  } | undefined;
 
   return {
     id: String(article._id),
@@ -183,5 +234,7 @@ export async function getArticleForAdminEdit(id: string): Promise<ArticleAdminEd
     isBreaking: Boolean(article.isBreaking),
     isFeatured: Boolean(article.isFeatured),
     status: editableStatus,
+    translationsFr: tr?.fr,
+    translationsEs: tr?.es,
   };
 }

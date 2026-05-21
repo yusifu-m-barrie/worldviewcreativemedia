@@ -28,6 +28,17 @@ export interface SiteSettingsValue {
   analytics?: {
     googleAnalyticsId?: string;
   };
+  ads?: {
+    enabled?: boolean;
+    adsenseClientId?: string;
+    slots?: {
+      homepageHero?: string;
+      homepageSidebar?: string;
+      homepageMid?: string;
+      articleMid?: string;
+      footer?: string;
+    };
+  };
 }
 
 export const defaultSiteSettings: SiteSettingsValue = {
@@ -53,4 +64,9 @@ export const defaultSiteSettings: SiteSettingsValue = {
       "We are currently offline. Follow us on Facebook, YouTube, or TikTok for the next live broadcast.",
   },
   analytics: {},
+  ads: {
+    enabled: true,
+    adsenseClientId: "",
+    slots: {},
+  },
 };

@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { registerModel } from "@/lib/register-model";
+import type { ContentTranslations } from "@/lib/i18n/types";
 
 export type ArticleStatus = "draft" | "published" | "scheduled" | "archived";
 
@@ -31,9 +32,19 @@ export interface IArticle {
   shareCount: number;
   /** Region or city slug for local news filters (e.g. freetown, bombali) */
   region?: string;
+  translations?: ContentTranslations;
   createdAt: Date;
   updatedAt: Date;
 }
+
+const localeFieldsSchema = new Schema(
+  {
+    title: String,
+    excerpt: String,
+    content: String,
+  },
+  { _id: false }
+);
 
 const ArticleSchema = new Schema<IArticle>(
   {
@@ -64,6 +75,10 @@ const ArticleSchema = new Schema<IArticle>(
     viewCount: { type: Number, default: 0 },
     shareCount: { type: Number, default: 0 },
     region: { type: String, trim: true },
+    translations: {
+      fr: { type: localeFieldsSchema, default: undefined },
+      es: { type: localeFieldsSchema, default: undefined },
+    },
   },
   { timestamps: true }
 );

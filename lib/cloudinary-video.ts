@@ -1,8 +1,11 @@
-/** Max video length allowed for uploads (5 minutes) */
-export const MAX_VIDEO_DURATION_SEC = 300;
+/** Max video length allowed for uploads (15 minutes) */
+export const MAX_VIDEO_DURATION_SEC = 15 * 60;
 
-/** Max file size ~250MB — enough for 5 min compressed HD */
-export const MAX_VIDEO_FILE_BYTES = 250 * 1024 * 1024;
+/** Max file size ~900MB — enough for 15 min compressed HD */
+export const MAX_VIDEO_FILE_BYTES = 900 * 1024 * 1024;
+
+/** Use chunked upload above this size (helps slow / metered connections) */
+export const VIDEO_CHUNK_SIZE_BYTES = 5 * 1024 * 1024;
 
 export function getPublicCloudName(): string | undefined {
   return (
@@ -14,13 +17,17 @@ export function getUploadPreset(): string | undefined {
   return process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 }
 
+export function formatMaxVideoDuration(): string {
+  return formatVideoDuration(MAX_VIDEO_DURATION_SEC);
+}
+
 /** Fast-loading progressive MP4 from Cloudinary */
 export function getOptimizedVideoPlaybackUrl(publicId: string): string {
   const cloudName = getPublicCloudName();
   if (!cloudName) return "";
 
   const id = publicId.replace(/\//g, "/");
-  return `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,vc_h264,fl_progressive/${id}.mp4`;
+  return `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:low,f_auto,vc_h264,fl_progressive/${id}.mp4`;
 }
 
 /** Auto-generated poster frame from video */
