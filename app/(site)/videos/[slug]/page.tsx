@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Eye } from "lucide-react";
+import { RecordContentView } from "@/components/analytics/record-content-view";
 import { VideoPlayer } from "@/components/video/video-player";
 import { buildMetadata } from "@/lib/seo";
 import { formatDate, formatDuration } from "@/lib/utils";
@@ -32,6 +33,7 @@ export default async function VideoPage({ params }: PageProps) {
   if (!video) notFound();
 
   const v = video as {
+    _id: string;
     title: string;
     slug: string;
     description?: string;
@@ -46,6 +48,7 @@ export default async function VideoPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
+      {v._id ? <RecordContentView contentType="video" contentId={v._id} /> : null}
       <Link href="/videos" className="mb-6 inline-flex items-center gap-2 text-sm text-[#2E2A86] hover:underline">
         <ArrowLeft className="h-4 w-4" />
         Back to Videos

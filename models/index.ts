@@ -10,3 +10,4 @@ export { Notification, type INotification } from "./Notification";
 export { Media, type IMedia } from "./Media";
 export { SiteSettings, type ISiteSettings } from "./SiteSettings";
 export { Analytics, type IAnalytics } from "./Analytics";
+export { ContentView, type IContentView, type ViewContentType } from "./ContentView";

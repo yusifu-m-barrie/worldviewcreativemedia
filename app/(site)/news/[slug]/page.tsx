@@ -10,7 +10,8 @@ import { JsonLd } from "@/components/json-ld";
 import { buildMetadata, articleJsonLd } from "@/lib/seo";
 import { absoluteUrl, formatDate } from "@/lib/utils";
 import { getServerTranslations } from "@/lib/i18n/server";
-import { getArticleBySlug, getRelatedArticles, incrementArticleViews } from "@/services/article.service";
+import { RecordContentView } from "@/components/analytics/record-content-view";
+import { getArticleBySlug, getRelatedArticles } from "@/services/article.service";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -47,8 +48,6 @@ export default async function ArticlePage({ params }: PageProps) {
     viewCount?: number;
   };
 
-  if (a._id) await incrementArticleViews(a._id);
-
   const related = await getRelatedArticles(slug, a.category?.slug, 4, locale);
   const content =
     a.content ||
@@ -65,6 +64,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
+      {a._id ? <RecordContentView contentType="article" contentId={a._id} /> : null}
       <JsonLd data={jsonLd} />
       <Link href="/news" className="mb-6 inline-flex items-center gap-2 text-sm text-[#2E2A86] hover:underline">
         <ArrowLeft className="h-4 w-4" />

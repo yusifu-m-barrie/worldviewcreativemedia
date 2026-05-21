@@ -183,9 +183,9 @@ export async function getRelatedArticles(
   return result.data.filter((a) => a.slug !== slug).slice(0, limit);
 }
 
-export async function incrementArticleViews(id: string) {
-  if (!isDbConfigured() || !(await tryConnectDB())) return;
-  await Article.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
+/** @deprecated Views are recorded via POST /api/views (unique per visitor). */
+export async function incrementArticleViews(_id: string) {
+  /* no-op — kept for backwards compatibility */
 }
 
 export interface ArticleAdminEdit {
