@@ -21,6 +21,7 @@ function mapStream(
     thumbnail?: string;
     scheduledAt?: Date;
     description?: string;
+    viewCount?: number;
   },
   facebookPageUrl?: string,
   tiktokProfileUrl?: string
@@ -48,6 +49,7 @@ function mapStream(
     thumbnail: live.thumbnail,
     scheduledAt: live.scheduledAt?.toISOString(),
     description: live.description,
+    viewCount: live.viewCount ?? 0,
   };
 }
 
@@ -94,7 +96,7 @@ export async function getCurrentLiveStream(locale: Locale = "en"): Promise<LiveS
   if (live) {
     const card = mapStream(live, settings.live.facebookPageUrl, settings.live.tiktokProfileUrl);
     return localizeLiveStream(
-      { ...card, description: live.description },
+      { ...card, description: live.description, viewCount: live.viewCount ?? 0 },
       locale
     ) as LiveStreamCard;
   }

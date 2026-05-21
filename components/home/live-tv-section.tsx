@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RecordContentView } from "@/components/analytics/record-content-view";
 import { LivePlayer } from "@/components/live/live-player";
 import { Button } from "@/components/ui/button";
 import { getSiteSettings } from "@/services/settings.service";
@@ -28,6 +29,18 @@ export async function LiveTVSection({ stream, labels }: LiveTVSectionProps) {
           <h3 className="mt-2 text-2xl font-bold lg:text-3xl">
             {stream?.title || "WorldView Creative Media Live"}
           </h3>
+          {stream?._id ? (
+            <div className="mt-2">
+              <RecordContentView
+                contentType="live"
+                contentId={stream._id}
+                showCount
+                initialViewCount={stream.viewCount ?? 0}
+                className="text-white/70"
+                label="views"
+              />
+            </div>
+          ) : null}
           <p className="mt-3 text-white/70">
             {labels?.subtitle ??
               "Watch breaking news and special coverage live on our website — streaming from Facebook, YouTube, and TikTok."}

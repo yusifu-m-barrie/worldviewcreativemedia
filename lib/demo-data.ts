@@ -114,6 +114,7 @@ export const demoLiveStream: LiveStreamCard = {
     "https://www.youtube.com/embed/jfKfPfyJRdk",
   thumbnail:
     "https://images.unsplash.com/photo-1478737273-78417779e661?w=1200&q=80",
+  viewCount: 12840,
 };
 
 export const demoVideos: VideoCard[] = [

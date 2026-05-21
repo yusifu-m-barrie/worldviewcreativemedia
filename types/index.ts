@@ -52,6 +52,7 @@ export interface LiveStreamCard {
   thumbnail?: string;
   scheduledAt?: string;
   description?: string;
+  viewCount?: number;
 }
 
 export interface AdPlacement {

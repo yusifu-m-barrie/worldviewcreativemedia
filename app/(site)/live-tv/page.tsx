@@ -1,4 +1,3 @@
-import { RecordContentView } from "@/components/analytics/record-content-view";
 import { LivePlayer } from "@/components/live/live-player";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +26,6 @@ export default async function LiveTVPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
-      {current?._id ? <RecordContentView contentType="live" contentId={current._id} /> : null}
       <SectionHeading title={t("liveTv.title")} subtitle={t("liveTv.subtitle")} />
 
       <section className="mb-12">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Eye } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { isSuperAdmin } from "@/config/roles";
 import { getAllLiveStreamsForAdmin } from "@/services/livestream.service";
@@ -79,6 +80,10 @@ export default async function AdminLivePage() {
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 text-xs ${adminMuted}`}>
+                    <Eye className="h-3.5 w-3.5" />
+                    {(s.viewCount ?? 0).toLocaleString()} views
+                  </span>
                   {s.publishedVideoId ? (
                     <Badge variant="secondary">On Videos</Badge>
                   ) : null}

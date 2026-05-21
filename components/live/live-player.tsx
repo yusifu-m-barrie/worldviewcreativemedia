@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Radio, Share2, Play, ExternalLink, Music2 } from "lucide-react";
+import { RecordContentView } from "@/components/analytics/record-content-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LiveStreamCard } from "@/types";
@@ -79,6 +80,14 @@ export function LivePlayer({
       {!compact && (
         <div className="p-6 text-white">
           <h2 className="text-2xl font-bold">{stream.title}</h2>
+          <RecordContentView
+            contentType="live"
+            contentId={stream._id}
+            showCount
+            initialViewCount={stream.viewCount ?? 0}
+            className="text-white/80"
+            label="views"
+          />
           {stream.description && (
             <p className="mt-2 text-white/70">{stream.description}</p>
           )}
