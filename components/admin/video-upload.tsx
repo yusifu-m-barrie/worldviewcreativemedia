@@ -249,13 +249,9 @@ export function VideoUpload({
     const cloudName = getPublicCloudName();
     const preset = getUploadPreset();
 
-    // Unsigned preset = no signature (most reliable on production)
+    // Unsigned preset = no signature (required for reliable production uploads)
     if (preset && cloudName) {
-      try {
-        return await uploadWithPreset(file, videoDuration, preset, cloudName);
-      } catch (presetErr) {
-        console.warn("Preset upload failed, trying signed upload:", presetErr);
-      }
+      return await uploadWithPreset(file, videoDuration, preset, cloudName);
     }
 
     const sig = await fetchUploadSignature(file.size);
@@ -428,15 +424,26 @@ export function VideoUpload({
         </p>
       </div>
 
+      {!getUploadPreset() ? (
+        <div className="flex gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <p>
+            Set{" "}
+            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=worldview_videos</code>{" "}
+            in Vercel and redeploy. Run{" "}
+            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npx tsx --env-file=.env.local scripts/setup-cloudinary-preset.ts</code>{" "}
+            once to create the preset in Cloudinary.
+          </p>
+        </div>
+      ) : null}
+
       {!publicCloud ? (
         <div className="flex gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>
             Add{" "}
             <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code>{" "}
-            to <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">.env.local</code> (same as{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">CLOUDINARY_CLOUD_NAME</code>). Signed
-            upload still works via the server if Cloudinary keys are set.
+            to your environment (same as <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">CLOUDINARY_CLOUD_NAME</code>).
           </p>
         </div>
       ) : null}
