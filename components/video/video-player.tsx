@@ -2,8 +2,9 @@
 
 import { facebookVideoToEmbed, tiktokToEmbed, youtubeToEmbed } from "@/lib/live-embed";
 import {
-  getOptimizedVideoPlaybackUrl,
   getVideoThumbnailUrl,
+  parseCloudinaryVideoUrl,
+  resolveVideoPlaybackSrc,
 } from "@/lib/cloudinary-video";
 
 interface VideoPlayerProps {
@@ -28,14 +29,16 @@ export function VideoPlayer({
     (videoUrl && videoUrl.match(/\.(mp4|webm|mov)(\?|$)/i));
 
   if (isCloudinary && !isEmbed) {
-    const src = cloudinaryPublicId
-      ? getOptimizedVideoPlaybackUrl(cloudinaryPublicId)
-      : videoUrl!;
-    const poster =
-      thumbnail || (cloudinaryPublicId ? getVideoThumbnailUrl(cloudinaryPublicId) : undefined);
+    const src = resolveVideoPlaybackSrc(videoUrl, cloudinaryPublicId);
+    const pid =
+      cloudinaryPublicId || (videoUrl ? parseCloudinaryVideoUrl(videoUrl) : null) || undefined;
+    const poster = thumbnail || (pid ? getVideoThumbnailUrl(pid) : undefined);
+
+    if (!src) return null;
 
     return (
       <video
+        key={src}
         src={src}
         poster={poster}
         controls

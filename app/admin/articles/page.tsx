@@ -17,6 +17,7 @@ import {
   adminTableWrap,
 } from "@/lib/admin-ui";
 import type { Role } from "@/config/roles";
+import { DeleteArticleButton } from "./delete-article-button";
 
 interface AdminArticlesPageProps {
   searchParams: Promise<{ created?: string; updated?: string }>;
@@ -159,6 +160,9 @@ export default async function AdminArticlesPage({ searchParams }: AdminArticlesP
                             <Pencil className="h-4 w-4" />
                           </Link>
                         </Button>
+                      ) : null}
+                      {superAdmin ? (
+                        <DeleteArticleButton id={article._id} title={article.title} />
                       ) : null}
                     </div>
                   </td>

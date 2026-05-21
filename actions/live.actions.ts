@@ -8,6 +8,7 @@ import { connectDB, isDbConfigured } from "@/lib/db";
 import type { LivePlatform } from "@/lib/live-embed";
 import { publishLiveStreamAsVideo } from "@/lib/live-to-video";
 import { canAccessPermission } from "@/lib/permissions";
+import { requireSuperAdmin } from "@/lib/require-super-admin";
 import type { AdminPermissions } from "@/lib/admin-permissions";
 import { LiveStream } from "@/models/LiveStream";
 import type { Role } from "@/config/roles";
@@ -160,11 +161,16 @@ export async function endLiveBroadcast(streamId: string) {
 }
 
 export async function deleteLiveStream(id: string) {
-  const check = await requireLiveAdmin();
+  const check = await requireSuperAdmin();
   if (check.error) return { error: check.error };
 
   await connectDB();
+  const stream = await LiveStream.findById(id).lean();
+  if (!stream) return { error: "Broadcast not found" };
+
   await LiveStream.findByIdAndDelete(id);
   revalidatePath("/admin/live");
+  revalidatePath("/live-tv");
+  revalidatePath("/videos");
   return { success: true };
 }

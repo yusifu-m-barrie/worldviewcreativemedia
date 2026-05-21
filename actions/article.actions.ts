@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import { isDbConfigured, tryConnectDB } from "@/lib/db";
 import { ADMIN_ROLES } from "@/config/roles";
 import { canAccessPermission, canEditArticle } from "@/lib/permissions";
+import { requireSuperAdmin } from "@/lib/require-super-admin";
 import type { AdminPermissions } from "@/lib/admin-permissions";
 import type { ContentTranslations } from "@/lib/i18n/types";
 import { Article } from "@/models/Article";
@@ -234,4 +235,27 @@ export async function updateArticle(articleId: string, formData: FormData) {
   revalidatePath(`/admin/articles/${articleId}/edit`);
 
   redirect(`/admin/articles?updated=${article.slug}`);
+}
+
+export async function deleteArticle(id: string) {
+  const check = await requireSuperAdmin();
+  if (check.error) return { error: check.error };
+
+  if (!(await tryConnectDB())) {
+    return { error: "Database not configured" };
+  }
+
+  const article = await Article.findById(id);
+  if (!article) return { error: "Article not found" };
+
+  const slug = article.slug;
+  await article.deleteOne();
+
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/blog");
+  revalidatePath(`/news/${slug}`);
+  revalidatePath("/admin/articles");
+
+  return { success: true };
 }

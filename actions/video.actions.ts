@@ -7,6 +7,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { connectDB, isDbConfigured } from "@/lib/db";
 import { canAccessPermission } from "@/lib/permissions";
+import { requireSuperAdmin } from "@/lib/require-super-admin";
 import type { AdminPermissions } from "@/lib/admin-permissions";
 import { MAX_VIDEO_DURATION_SEC } from "@/lib/cloudinary-video";
 import { Video } from "@/models/Video";
@@ -102,12 +103,17 @@ export async function createVideo(formData: FormData) {
 }
 
 export async function deleteVideo(id: string) {
-  const check = await requireAdmin();
+  const check = await requireSuperAdmin();
   if (check.error) return { error: check.error };
 
   await connectDB();
+  const video = await Video.findById(id).lean();
+  if (!video) return { error: "Video not found" };
+
   await Video.findByIdAndDelete(id);
   revalidatePath("/videos");
+  revalidatePath("/");
   revalidatePath("/admin/videos");
+  if (video.slug) revalidatePath(`/videos/${video.slug}`);
   return { success: true };
 }

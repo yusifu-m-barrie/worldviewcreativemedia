@@ -1,33 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Trash2 } from "lucide-react";
 import { deleteVideo } from "@/actions/video.actions";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { DeleteItemButton } from "@/components/admin/delete-item-button";
 
-export function DeleteVideoButton({ id }: { id: string }) {
-  const [pending, setPending] = useState(false);
-
-  async function handleDelete() {
-    if (!confirm("Delete this video?")) return;
-    setPending(true);
-    const result = await deleteVideo(id);
-    setPending(false);
-    if (result?.error) toast.error(result.error);
-    else toast.success("Video deleted");
-  }
-
+export function DeleteVideoButton({ id, title }: { id: string; title: string }) {
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      className="text-red-600 hover:text-red-700"
-      disabled={pending}
-      onClick={handleDelete}
-    >
-      <Trash2 className="h-4 w-4" />
-    </Button>
+    <DeleteItemButton
+      label="Video"
+      confirmMessage={`Delete "${title}"? This cannot be undone.`}
+      onDelete={() => deleteVideo(id)}
+    />
   );
 }

@@ -6,7 +6,7 @@ import {
   MAX_VIDEO_FILE_BYTES,
   formatMaxVideoDuration,
   getVideoThumbnailUrl,
-  getOptimizedVideoPlaybackUrl,
+  getCloudinaryVideoPlaybackUrl,
 } from "@/lib/cloudinary-video";
 import { ADMIN_ROLES } from "@/config/roles";
 import { hasPermission, type AdminPermissions } from "@/lib/admin-permissions";
@@ -115,10 +115,10 @@ export async function POST(req: Request) {
     }
 
     const publicId = result.public_id;
-    const playbackUrl = getOptimizedVideoPlaybackUrl(publicId);
+    const playbackUrl = result.secure_url || getCloudinaryVideoPlaybackUrl(publicId);
 
     return NextResponse.json({
-      url: playbackUrl || result.secure_url,
+      url: playbackUrl,
       rawUrl: result.secure_url,
       publicId,
       duration: Math.round(duration),

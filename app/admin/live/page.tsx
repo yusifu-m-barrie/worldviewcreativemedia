@@ -1,12 +1,19 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { isSuperAdmin } from "@/config/roles";
 import { getAllLiveStreamsForAdmin } from "@/services/livestream.service";
 import { getSiteSettings } from "@/services/settings.service";
 import { LiveControlForm } from "./live-control-form";
+import { DeleteLiveButton } from "./delete-live-button";
+import type { Role } from "@/config/roles";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { adminMuted, adminPageTitle, adminSubtitle } from "@/lib/admin-ui";
 
 export default async function AdminLivePage() {
+  const session = await auth();
+  const superAdmin = isSuperAdmin(session?.user?.role as Role | undefined);
+
   const [streams, settings] = await Promise.all([
     getAllLiveStreamsForAdmin(),
     getSiteSettings(),
@@ -76,6 +83,9 @@ export default async function AdminLivePage() {
                     <Badge variant="secondary">On Videos</Badge>
                   ) : null}
                   {s.isLive ? <Badge variant="live">Live</Badge> : <Badge variant="secondary">Offline</Badge>}
+                  {superAdmin ? (
+                    <DeleteLiveButton id={String(s._id)} title={s.title} />
+                  ) : null}
                 </div>
               </li>
             ))}

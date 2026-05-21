@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { isSuperAdmin } from "@/config/roles";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getAllVideosForAdmin } from "@/services/video.service";
+import type { Role } from "@/config/roles";
 import { formatDate } from "@/lib/utils";
 import {
   adminMuted,
@@ -17,6 +20,8 @@ import {
 import { DeleteVideoButton } from "./delete-video-button";
 
 export default async function AdminVideosPage() {
+  const session = await auth();
+  const superAdmin = isSuperAdmin(session?.user?.role as Role | undefined);
   const videos = await getAllVideosForAdmin();
 
   return (
@@ -67,7 +72,9 @@ export default async function AdminVideosPage() {
                         View
                       </Link>
                     )}
-                    <DeleteVideoButton id={String(v._id)} />
+                    {superAdmin ? (
+                      <DeleteVideoButton id={String(v._id)} title={v.title} />
+                    ) : null}
                   </div>
                 </td>
               </tr>

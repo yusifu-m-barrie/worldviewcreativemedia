@@ -4,7 +4,7 @@ import { cloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 import {
   MAX_VIDEO_DURATION_SEC,
   formatMaxVideoDuration,
-  getOptimizedVideoPlaybackUrl,
+  getCloudinaryVideoPlaybackUrl,
   getVideoThumbnailUrl,
   isEmbedPlatformUrl,
   parseCloudinaryVideoUrl,
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     const existingPublicId = parseCloudinaryVideoUrl(sourceUrl);
     if (existingPublicId) {
       return NextResponse.json({
-        url: getOptimizedVideoPlaybackUrl(existingPublicId),
+        url: getCloudinaryVideoPlaybackUrl(existingPublicId),
         publicId: existingPublicId,
         thumbnail: getVideoThumbnailUrl(existingPublicId),
         resourceType: "video",
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     const publicId = result.public_id;
 
     return NextResponse.json({
-      url: getOptimizedVideoPlaybackUrl(publicId),
+      url: result.secure_url || getCloudinaryVideoPlaybackUrl(publicId),
       rawUrl: result.secure_url,
       publicId,
       duration: Math.round(duration),

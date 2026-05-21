@@ -12,8 +12,9 @@ import {
   readLocalVideoDuration,
   formatVideoDuration,
   formatMaxVideoDuration,
-  getOptimizedVideoPlaybackUrl,
+  getCloudinaryVideoPlaybackUrl,
   getVideoThumbnailUrl,
+  resolveVideoPlaybackSrc,
   getPublicCloudName,
   getUploadPreset,
   isEmbedPlatformUrl,
@@ -84,7 +85,7 @@ function parseCloudinaryUploadResponse(
     (data.secure_url as string);
 
   return {
-    url: getOptimizedVideoPlaybackUrl(pid) || playback,
+    url: playback || getCloudinaryVideoPlaybackUrl(pid),
     publicId: pid,
     duration: dur,
     thumbnail: getVideoThumbnailUrl(pid) || `https://res.cloudinary.com/${cloudName}/video/upload/so_2,w_1280,h_720,c_fill,q_auto,f_jpg/${pid}.jpg`,
@@ -310,7 +311,7 @@ export function VideoUpload({
     const existingPublicId = parseCloudinaryVideoUrl(url);
     if (existingPublicId) {
       onChange({
-        url: getOptimizedVideoPlaybackUrl(existingPublicId) || url,
+        url: getCloudinaryVideoPlaybackUrl(existingPublicId) || url,
         publicId: existingPublicId,
         thumbnail: getVideoThumbnailUrl(existingPublicId),
       });
@@ -451,7 +452,7 @@ export function VideoUpload({
       {value && (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-black dark:border-gray-700">
           <video
-            src={value}
+            src={resolveVideoPlaybackSrc(value, publicId) || value}
             poster={thumbnail}
             controls
             playsInline
