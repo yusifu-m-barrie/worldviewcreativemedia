@@ -15,6 +15,7 @@ import {
   getOptimizedVideoPlaybackUrl,
   getVideoThumbnailUrl,
   getPublicCloudName,
+  getUploadPreset,
   isEmbedPlatformUrl,
   parseCloudinaryVideoUrl,
   type CloudinaryUploadResult,
@@ -51,9 +52,20 @@ function parseCloudinaryXhrError(xhr: XMLHttpRequest): string {
     const data = JSON.parse(xhr.responseText) as {
       error?: string | { message?: string };
     };
-    if (typeof data.error === "string") return data.error;
-    if (data.error && typeof data.error === "object" && data.error.message) {
-      return data.error.message;
+    const msg =
+      typeof data.error === "string"
+        ? data.error
+        : data.error && typeof data.error === "object"
+          ? data.error.message
+          : undefined;
+
+    if (msg) {
+      if (/invalid signature/i.test(msg)) {
+        return (
+          "Cloudinary rejected the upload signature. On Vercel, re-copy CLOUDINARY_API_SECRET from your Cloudinary dashboard (no spaces), or set NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to an unsigned video preset."
+        );
+      }
+      return msg;
     }
   } catch {
     /* ignore */
@@ -166,9 +178,7 @@ export function VideoUpload({
         formData.append("chunk_size", String(sig.chunkSize));
       }
 
-      if (sig.uploadPreset) {
-        formData.append("upload_preset", sig.uploadPreset);
-      }
+      // Never mix upload_preset with signed params — breaks the signature.
 
       xhr.open("POST", url);
       xhr.send(formData);
@@ -201,7 +211,7 @@ export function VideoUpload({
             reject(new Error("Invalid Cloudinary response"));
           }
         } else {
-          reject(new Error("Preset upload failed — using signed upload instead"));
+          reject(new Error(parseCloudinaryXhrError(xhr)));
         }
       });
 
@@ -236,20 +246,23 @@ export function VideoUpload({
   }
 
   async function uploadFileToCloudinary(file: File, videoDuration: number) {
+    const cloudName = getPublicCloudName();
+    const preset = getUploadPreset();
+
+    // Unsigned preset = no signature (most reliable on production)
+    if (preset && cloudName) {
+      try {
+        return await uploadWithPreset(file, videoDuration, preset, cloudName);
+      } catch (presetErr) {
+        console.warn("Preset upload failed, trying signed upload:", presetErr);
+      }
+    }
+
     const sig = await fetchUploadSignature(file.size);
 
     try {
       return await uploadDirectToCloudinary(file, videoDuration, sig);
     } catch (signedErr) {
-      const preset = sig.uploadPreset;
-      if (preset) {
-        try {
-          return await uploadWithPreset(file, videoDuration, preset, sig.cloudName);
-        } catch {
-          /* fall through */
-        }
-      }
-
       if (file.size <= 4 * 1024 * 1024) {
         return await uploadViaApi(file, videoDuration);
       }
